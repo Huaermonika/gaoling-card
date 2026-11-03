@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>高岭之花 · 开局与角色 · v4</title>
+<style>
+:root{
+  --bg:#f5f1e8; --bg-2:#efe9dd; --panel:#fffdf7; --panel-2:#f3eee3;
+  --line:#e7dfd0; --line-2:#d3c6b0;
+  --accent:#cf8f97; --accent-dim:rgba(207,143,151,0.13);
+  --green:#8fbe9c; --blue:#8fb2d6; --red:#df8b8b; --amber:#d9ab6b;
+  --text:#433d33; --muted:#a29483; --radius:20px;
+  --shadow:0 20px 48px -20px rgba(120,90,60,0.38);
+  --font-ui:system-ui,-apple-system,'Segoe UI','Microsoft YaHei','PingFang SC',sans-serif;
+  --font-mono:'JetBrains Mono','Cascadia Code','Courier New',monospace;
+  --font-serif:'Noto Serif SC','Source Han Serif SC','Songti SC','SimSun',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9e3d7;color:var(--text);font-family:var(--font-ui);line-height:1.5;padding:40px 28px 80px}
+.wrap{max-width:1360px;margin:0 auto}
+.cover{margin-bottom:40px}
+.cover h1{font-size:26px;letter-spacing:2px}
+.cover p{margin-top:8px;font-size:12.5px;color:var(--muted);line-height:1.7}
+.cover p b{color:var(--text);font-weight:600}
+
+section.dir{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:32px 38px;margin-bottom:44px;box-shadow:var(--shadow)}
+.dir-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.dir-badge{font-size:11px;letter-spacing:1px;color:#fff;background:var(--accent);border-radius:6px;padding:2px 9px;font-family:var(--font-mono)}
+.dir-head h2{font-size:22px;letter-spacing:1px}
+.dir-line{margin-top:6px;font-size:13px;color:var(--muted)}
+.dir-line b{color:var(--text);font-weight:600}
+
+.stage{margin-top:24px;display:flex;gap:36px;flex-wrap:wrap;align-items:flex-start}
+.stage .cap{font-size:11.5px;color:var(--muted);margin-top:8px;font-family:var(--font-mono)}
+.phone{width:372px;flex:0 0 auto}
+.phone-f{width:360px;height:720px;border-radius:46px;background:#2b2620;padding:10px;box-shadow:var(--shadow)}
+.phone-s{position:relative;width:340px;height:700px;border-radius:38px;background:var(--bg);overflow:hidden}
+.notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:92px;height:18px;border-radius:9px;background:#2b2620;z-index:9}
+.desk{flex:1;min-width:560px}
+.desk-f{width:100%;height:600px;border-radius:16px;background:var(--bg);border:1px solid var(--line-2);box-shadow:var(--shadow);overflow:hidden;position:relative}
+.desk-bar{height:32px;background:var(--panel-2);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 14px;gap:6px;font-size:10px;color:var(--muted);font-family:var(--font-mono)}
+.desk-dot{width:9px;height:9px;border-radius:50%}
+.desk-dot.r{background:var(--red)}.desk-dot.y{background:var(--amber)}.desk-dot.g{background:var(--green)}
+.desk-dot + span{margin-left:8px;letter-spacing:1px}
+.mono{font-family:var(--font-mono)}
+.serif{font-family:var(--font-serif)}
+
+.img{background-image:url('../0CB8189DAC2085CE480FF2F587C9BEF2.png');background-size:cover;background-position:center 16%;background-color:var(--accent-dim)}
+.scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(43,33,26,0) 58%,rgba(43,33,26,0.5) 100%)}
+.go{height:44px;background:var(--accent);color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;letter-spacing:2px;cursor:pointer}
+.go.sm{height:40px;border-radius:10px;font-size:13px}
+.caret{width:2px;height:20px;background:var(--accent);margin-left:6px;animation:blink .95s steps(1) infinite}
+@keyframes blink{0%,60%{opacity:1}61%,100%{opacity:0}}
+
+/* ===== 首页翻页器 ===== */
+.pg{position:absolute;top:0;left:0;right:0;bottom:0;display:none}
+.pg.on{display:block}
+.pg .hero{position:absolute;top:0;left:0;right:0;height:466px;overflow:hidden}
+.pg .t{position:absolute;top:482px;left:20px}
+.pg .t .n{font-family:var(--font-serif);font-size:19px;letter-spacing:3px}
+.pg .t .m{font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-top:4px}
+.pg .intro{position:absolute;top:548px;left:20px;right:20px;font-size:12.5px;color:var(--muted);line-height:1.7}
+.pg .go{position:absolute;bottom:58px;left:20px;right:20px}
+.tabbar{position:absolute;bottom:12px;left:14px;right:14px;display:flex;align-items:center;justify-content:center;gap:16px;font-size:13px;color:var(--muted)}
+.tabbar .ar{font-family:var(--font-mono);font-size:15px;color:var(--muted);cursor:pointer}
+.tabbar .w{padding-bottom:4px;border-bottom:2px solid transparent;cursor:pointer;letter-spacing:1px}
+.tabbar .w.on{color:var(--text);font-weight:600;border-bottom-color:var(--accent)}
+.ph{position:absolute;inset:0;background:var(--bg-2);display:flex;align-items:center;justify-content:center}
+.ph .ring{width:76px;height:76px;border:1px solid var(--line-2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:26px;color:var(--accent)}
+.mgmt{position:absolute;top:20px;left:20px;right:20px;height:446px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:22px;display:flex;flex-direction:column}
+.mgmt .n{font-family:var(--font-serif);font-size:20px;letter-spacing:3px}
+.mgmt .m{font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-top:5px}
+.mgmt .rows{margin-top:20px;display:flex;flex-direction:column}
+.mgmt .row{display:flex;align-items:center;justify-content:space-between;padding:14px 2px;border-top:1px solid var(--line);font-size:13.5px;letter-spacing:1px}
+.mgmt .row .sub{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
+.mgmt .row .arr{color:var(--muted);font-family:var(--font-mono)}
+
+/* 桌面三栏 */
+.d3{display:grid;grid-template-columns:1fr 1fr 1fr;height:568px}
+.dcol{padding:30px 24px;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+.dcol:last-child{border-right:0}
+.dcol .hero{height:248px;border-radius:14px;overflow:hidden;position:relative}
+.dcol .n{margin-top:14px;font-family:var(--font-serif);font-size:20px;letter-spacing:3px}
+.dcol .m{margin-top:4px;font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:1.5px}
+.dcol .intro{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.7}
+.dcol .go{margin-top:auto;height:42px;border-radius:10px;font-size:13.5px}
+.dcol .ph{position:absolute;inset:0;border-radius:14px}
+.dcol .mgmt{margin-top:0;height:248px;position:relative;top:auto;left:auto;right:auto;border-radius:14px;padding:18px}
+
+/* ===== 子页示意 ===== */
+.subs{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.sub{width:286px}
+.sub-f{width:280px;height:560px;border-radius:36px;background:#2b2620;padding:9px;box-shadow:var(--shadow)}
+.sub-s{position:relative;width:262px;height:542px;border-radius:29px;background:var(--bg);overflow:hidden}
+.sub-s .bar{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;gap:12px;padding:0 16px;font-size:12px;border-bottom:1px solid var(--line)}
+.sub-s .bar .bk{font-family:var(--font-mono);color:var(--muted);font-size:13px}
+.sub-s .body{position:absolute;top:44px;left:16px;right:16px;bottom:0;display:flex;flex-direction:column}
+.s-ln{margin-top:12px;font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:1px}
+.s-n{margin-top:6px;font-family:var(--font-serif);font-size:18px;letter-spacing:2px}
+.s-intro{margin-top:6px;font-size:11.5px;color:var(--muted);line-height:1.7}
+.s-list{margin-top:14px;display:flex;flex-direction:column}
+.s-row{padding:10px 2px 10px 10px;border-top:1px solid var(--line);border-left:3px solid transparent;cursor:pointer}
+.s-row.on{border-left-color:var(--accent)}
+.s-row b{font-size:12.5px;letter-spacing:.5px}
+.s-row small{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+.s-prev{margin-top:12px;font-size:11px;line-height:1.75;color:var(--text);min-height:38px}
+.s-go{margin-top:auto;height:40px;border-radius:10px;font-size:13px;margin-bottom:14px}
+.s-hero{height:150px;border-radius:12px;overflow:hidden;position:relative;margin-top:12px}
+.s-hero .ph{position:absolute;inset:0;border-radius:12px}
+.s-input{margin-top:14px;border-bottom:1px solid var(--accent);padding-bottom:7px;display:flex;align-items:center;font-family:var(--font-serif);font-size:16px;letter-spacing:1px}
+.s-panel{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:6px 12px}
+.s-panel .ln{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-top:1px solid var(--line);font-size:12.5px}
+.s-panel .ln:first-child{border-top:0}
+.s-panel .ln .sub{font-size:9.5px;color:var(--muted);font-family:var(--font-mono)}
+.s-panel .ln .sw{width:30px;height:17px;border-radius:9px;background:var(--accent);position:relative}
+.s-panel .ln .sw::after{content:'';position:absolute;top:2px;right:2px;width:13px;height:13px;border-radius:50%;background:#fff}
+.s-panel .ln .sw.off{background:var(--line-2)}
+.s-panel .ln .sw.off::after{right:auto;left:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="cover">
+  <h1>高岭之花 · 开局与角色 · v4</h1>
+  <p>以 A（定格）为基础：首页 = 翻页器，<b>1 自定义 / 2 千鹤 / 3 管理</b>。每页一句话简介 + 一个开始按钮；开场白不进首页，在千鹤子页选。尾页恒为管理，未来新增角色在中间插页。</p>
+  <p>约定：自动保存 · 草稿=从未「开始」· 「开始」才写首楼 · 官方只读/可复制为自定义 · JSON 导入导出</p>
+</header>
+
+<!-- ===== 首页翻页器 ===== -->
+<section class="dir">
+  <div class="dir-head"><span class="dir-badge">首页</span><h2>翻页器 · 三页并列</h2></div>
+  <p class="dir-line">每页：图 + 标题 + 一句简介 + 一个开始。点开始进对应子页（自定义流程 / 千鹤详细信息 / 管理）。左右滑动或点页签翻页；页 3 恒为最后一页。</p>
+
+  <div class="stage">
+    <div class="phone">
+      <div class="phone-f"><div class="phone-s">
+        <div class="notch"></div>
+
+        <!-- 页1 自定义 -->
+        <div class="pg on">
+          <div class="hero"><div class="ph"><div class="ring">＋</div></div></div>
+          <div class="t"><div class="n">你的角色</div><div class="m">CUSTOM · 与千鹤无关</div></div>
+          <div class="intro">名字、开场都由你定。</div>
+          <div class="go">开始</div>
+        </div>
+
+        <!-- 页2 千鹤 -->
+        <div class="pg">
+          <div class="hero"><div class="img"></div><div class="scrim"></div></div>
+          <div class="t"><div class="n">白峰千鹤</div><div class="m">AN-0170A · 私立清岭学园</div></div>
+          <div class="intro">仿生机器人。持有者是你，完整控制权限。</div>
+          <div class="go">开始</div>
+        </div>
+
+        <!-- 页3 管理 -->
+        <div class="pg">
+          <div class="mgmt">
+            <div class="n">管理</div>
+            <div class="m">PRESETS · SETTINGS</div>
+            <div class="rows">
+              <div class="row"><span>导入</span><span class="sub">从 JSON 文件</span><span class="arr">›</span></div>
+              <div class="row"><span>导出</span><span class="sub">当前预设</span><span class="arr">›</span></div>
+              <div class="row"><span>设置</span><span class="sub">调整一些设置</span><span class="arr">›</span></div>
+            </div>
+          </div>
+          <div class="t"><div class="n">管理</div><div class="m">最后一页 · 恒定</div></div>
+          <div class="intro">导入、导出、设置。</div>
+          <div class="go">进入管理</div>
+        </div>
+
+        <div class="tabbar">
+          <span class="ar">‹</span>
+          <span class="w on">自定义</span>
+          <span class="w">千鹤</span>
+          <span class="w">管理</span>
+          <span class="ar">›</span>
+        </div>
+      </div></div>
+      <p class="cap">360×720 · 翻页器 · 滑动/点页签翻页 · 当前显示自定义页</p>
+    </div>
+
+    <div class="desk">
+      <div class="desk-f">
+        <div class="desk-bar"><span class="desk-dot r"></span><span class="desk-dot y"></span><span class="desk-dot g"></span><span>高岭之花 · 开局与角色</span></div>
+        <div class="d3">
+          <div class="dcol">
+            <div class="hero"><div class="ph"><div class="ring">＋</div></div></div>
+            <div class="n">你的角色</div>
+            <div class="m">CUSTOM · 与千鹤无关</div>
+            <div class="intro">名字、开场都由你定。</div>
+            <div class="go">开始</div>
+          </div>
+          <div class="dcol">
+            <div class="hero"><div class="img" style="position:absolute;inset:0"></div><div class="scrim"></div></div>
+            <div class="n">白峰千鹤</div>
+            <div class="m">AN-0170A · 私立清岭学园</div>
+            <div class="intro">仿生机器人。持有者是你，完整控制权限。</div>
+            <div class="go">开始</div>
+          </div>
+          <div class="dcol">
+            <div class="mgmt">
+              <div class="n">管理</div>
+              <div class="m">PRESETS · SETTINGS</div>
+              <div class="rows">
+                <div class="row"><span>导入</span><span class="sub">从 JSON 文件</span><span class="arr">›</span></div>
+                <div class="row"><span>导出</span><span class="sub">当前预设</span><span class="arr">›</span></div>
+                <div class="row"><span>设置</span><span class="sub">调整一些设置</span><span class="arr">›</span></div>
+              </div>
+            </div>
+            <div class="n">管理</div>
+            <div class="m">最后一页 · 恒定</div>
+            <div class="intro">导入、导出、设置。</div>
+            <div class="go">进入管理</div>
+          </div>
+        </div>
+      </div>
+      <p class="cap">940×600 · 三栏并排，全见 · 新增角色往中间插列</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 子页示意 ===== -->
+<section class="dir">
+  <div class="dir-head"><span class="dir-badge">子页</span><h2>点「开始」进入</h2></div>
+  <p class="dir-line">示意：千鹤详细信息（含三条开场白选择）/ 自定义流程 / 管理。开场白在这里选，选中的那条就是开局第一条信息。</p>
+
+  <div class="stage">
+    <div class="subs">
+      <div class="sub">
+        <div class="sub-f"><div class="sub-s">
+          <div class="bar"><span class="bk">‹</span><span>千鹤</span></div>
+          <div class="body">
+            <div class="s-ln">AN-0170A · 私立清岭学园</div>
+            <div class="s-n">白峰千鹤</div>
+            <div class="s-intro">仿生机器人。持有者是你，完整控制权限。</div>
+            <div class="s-list">
+              <div class="s-row on"><b>教室 · 初次连接</b><small>早自习，终端第一次亮起</small></div>
+              <div class="s-row"><b>放学后 · 单独辅导</b><small>教室里只剩你们两个人</small></div>
+              <div class="s-row"><b>周末 · 家中</b><small>她已经把你当作恋人</small></div>
+            </div>
+            <div class="s-prev">四月的风从走廊那头的窗户灌进来，把前排女生的马尾吹得轻轻晃动。</div>
+            <div class="s-go go">从这个开场开始</div>
+          </div>
+        </div></div>
+        <p class="cap">千鹤 · 详细信息 · 三条开场白三选一</p>
+      </div>
+
+      <div class="sub">
+        <div class="sub-f"><div class="sub-s">
+          <div class="bar"><span class="bk">‹</span><span>自定义</span></div>
+          <div class="body">
+            <div class="s-hero"><div class="ph"><div class="ring">＋</div></div></div>
+            <div class="s-input">名字。<span class="caret"></span></div>
+            <div class="s-panel"><div class="ln">开场<small class="sub">写一段开场。</small></div></div>
+            <div class="s-go go">开始</div>
+          </div>
+        </div></div>
+        <p class="cap">自定义流程 · 占位图待替换 · 名字 + 开场</p>
+      </div>
+
+      <div class="sub">
+        <div class="sub-f"><div class="sub-s">
+          <div class="bar"><span class="bk">‹</span><span>管理</span></div>
+          <div class="body">
+            <div class="s-n">管理</div>
+            <div class="s-panel">
+              <div class="ln"><span>导入</span><small class="sub">从 JSON 文件</small></div>
+              <div class="ln"><span>导出</span><small class="sub">当前预设</small></div>
+            </div>
+            <div class="s-ln" style="margin-top:18px">设置</div>
+            <div class="s-panel">
+              <div class="ln"><span>默认页</span><small class="sub">千鹤</small></div>
+              <div class="ln"><span>自动保存</span><span class="sw"></span></div>
+              <div class="ln"><span>开场预览</span><span class="sw off"></span></div>
+            </div>
+          </div>
+        </div></div>
+        <p class="cap">管理 · 导入导出 + 设置</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="color:var(--muted);font-size:11.5px;line-height:1.8">
+  本次交付首页翻页器 + 子页示意。选定后细化交互（导入冲突 / 校验 / 自动保存 / 删除确认）。
+</footer>
+
+</div>
+</body>
+</html>

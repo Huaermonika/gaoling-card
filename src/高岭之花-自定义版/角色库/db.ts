@@ -38,6 +38,8 @@ export interface CharacterPreset {
   openings: StoredOpening[];
   world: CharacterWorld;
   source: 'custom' | 'official-copy';
+  /** draft = 从未开始，自动保存；ready = 已经写过首楼 */
+  status: 'draft' | 'ready';
   createdAt: number;
   updatedAt: number;
 }
@@ -98,7 +100,7 @@ function newId(): string {
 
 export function makeCharacter(input: Omit<CharacterPreset, 'id' | 'createdAt' | 'updatedAt'>): CharacterPreset {
   const now = Date.now();
-  return { ...input, id: newId(), createdAt: now, updatedAt: now };
+  return { ...input, status: input.status ?? 'draft', id: newId(), createdAt: now, updatedAt: now };
 }
 
 /** 导出为可分享的 JSON 文本 */
@@ -107,14 +109,31 @@ export function serializeCharacter(record: CharacterPreset): string {
     {
       kind: 'gaoling.character',
       version: 1,
-      character: {
-        name: record.name,
-        avatar: record.avatar ?? '',
-        profile: record.profile,
-        openings: record.openings,
-        world: record.world,
-        source: record.source,
-      },
+      character: toExportShape(record),
+    },
+    null,
+    2,
+  );
+}
+
+function toExportShape(record: CharacterPreset) {
+  return {
+    name: record.name,
+    avatar: record.avatar ?? '',
+    profile: record.profile,
+    openings: record.openings,
+    world: record.world,
+    source: record.source,
+    status: record.status,
+  };
+}
+
+export function serializeCollection(records: CharacterPreset[]): string {
+  return JSON.stringify(
+    {
+      kind: 'gaoling.collection',
+      version: 1,
+      characters: records.map(toExportShape),
     },
     null,
     2,
@@ -125,8 +144,17 @@ export function serializeCharacter(record: CharacterPreset): string {
 export function parseCharacterFile(text: string): Omit<CharacterPreset, 'id' | 'createdAt' | 'updatedAt'> {
   const raw = JSON.parse(text) as any;
   if (raw?.kind !== 'gaoling.character' || !raw.character) throw new Error('不是角色文件');
-  const c = raw.character;
-  const name = String(c.name ?? c.profile?.姓名 ?? '').trim();
+  return parseCharacter(raw.character);
+}
+
+export function parseCollectionFile(text: string): Omit<CharacterPreset, 'id' | 'createdAt' | 'updatedAt'>[] {
+  const raw = JSON.parse(text) as any;
+  if (raw?.kind !== 'gaoling.collection' || !Array.isArray(raw.characters)) throw new Error('不是角色合集文件');
+  return raw.characters.map((item: any) => parseCharacter(item));
+}
+
+function parseCharacter(c: any): Omit<CharacterPreset, 'id' | 'createdAt' | 'updatedAt'> {
+  const name = String(c?.name ?? c?.profile?.姓名 ?? '').trim();
   if (!name) throw new Error('角色缺少姓名');
   const profile: CharacterProfile = {
     姓名: String(c.profile?.姓名 ?? name),
@@ -161,5 +189,6 @@ export function parseCharacterFile(text: string): Omit<CharacterPreset, 'id' | '
       设定: String(c.world?.设定 ?? ''),
     },
     source: c.source === 'official-copy' ? 'official-copy' : 'custom',
+    status: c.status === 'ready' ? 'ready' : 'draft',
   };
 }
