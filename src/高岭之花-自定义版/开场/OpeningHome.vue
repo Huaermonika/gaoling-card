@@ -2,35 +2,20 @@
   <div class="oh-overlay">
     <!-- 首页：整页翻页 -->
     <template v-if="view === 'home'">
-      <!-- 桌面：左侧入口栏 + 右侧主画面 -->
-      <div v-if="isDesktop" class="oh-desk">
-        <aside class="oh-desk-rail">
-          <div class="oh-desk-brand">高岭之花</div>
-          <button
-            v-for="page in pages"
-            :key="page.key"
-            type="button"
-            class="oh-desk-entry"
-            :class="{ active: desktopPage === page.key }"
-            @click="desktopPage = page.key"
-          >
-            <span>{{ page.kicker }}</span>
-            <b>{{ page.title }}</b>
-            <small>{{ page.meta }}</small>
-          </button>
-        </aside>
+      <!-- 桌面：整幅主画面 + 底部选择条 -->
+      <div v-if="isDesktop" class="oh-desk" :class="{ 'no-cover': !desktopSelected?.cover }">
+        <div class="oh-desk-stage" :style="desktopSelected?.cover ? { backgroundImage: `url(&quot;${desktopSelected.cover}&quot;)` } : {}">
+          <div class="oh-desk-shade" />
 
-        <section class="oh-desk-stage">
-          <div class="oh-desk-cover" :style="desktopSelected?.cover ? { backgroundImage: `url(&quot;${desktopSelected.cover}&quot;)` } : {}">
-            <div v-if="!desktopSelected?.cover" class="oh-placeholder" :class="desktopSelected?.key">
-              <span class="oh-ph-label">{{ desktopSelected?.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
-              <b>{{ desktopSelected?.key === 'custom' ? '你的角色' : '角色库' }}</b>
-              <small>{{ desktopSelected?.key === 'custom' ? '创建后可上传立绘' : '草稿 · 导入导出' }}</small>
-            </div>
-            <span v-if="desktopSelected?.badge" class="oh-badge">{{ desktopSelected.badge }}</span>
+          <div v-if="!desktopSelected?.cover" class="oh-desk-type">
+            <span>{{ desktopSelected?.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
+            <b>{{ desktopSelected?.key === 'custom' ? '你的角色' : '角色库' }}</b>
+            <small>{{ desktopSelected?.key === 'custom' ? '创建后可上传立绘' : '你写过的角色' }}</small>
           </div>
 
-          <div class="oh-desk-info">
+          <span v-if="desktopSelected?.badge" class="oh-badge">{{ desktopSelected.badge }}</span>
+
+          <div class="oh-desk-copy">
             <span class="oh-kicker">{{ desktopSelected?.kicker }}</span>
             <h2>{{ desktopSelected?.title }}</h2>
             <p>{{ desktopSelected?.line }}</p>
@@ -39,7 +24,24 @@
               {{ desktopSelected?.button }}
             </button>
           </div>
-        </section>
+
+          <div class="oh-desk-strip">
+            <button
+              v-for="page in pages"
+              :key="page.key"
+              type="button"
+              class="oh-desk-tab"
+              :class="{ active: desktopPage === page.key }"
+              @click="desktopPage = page.key"
+            >
+              <span class="oh-desk-thumb" :style="page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}" />
+              <span class="oh-desk-tab-text">
+                <b>{{ page.title }}</b>
+                <small>{{ page.kicker }}</small>
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <template v-else>
@@ -345,7 +347,9 @@ function openingExcerpt(text: string) {
 const saved = ref<CharacterPreset[]>([]);
 const manageTab = ref<'mine' | 'workshop'>('mine');
 /** 角色库只管理玩家自定义来源；官方、背景角色不在这里 */
-const mine = computed(() => saved.value.filter(item => item.source === 'custom'));
+const mine = computed(() =>
+  saved.value.filter(item => item.source === 'custom' && item.kind !== 'background'),
+);
 
 const importInput = ref<HTMLInputElement | null>(null);
 const avatarInput = ref<HTMLInputElement | null>(null);
@@ -461,6 +465,7 @@ function buildRecord(status: 'draft' | 'ready'): CharacterPreset {
       设定: form.设定,
     },
     source: 'custom' as const,
+    kind: 'controlled' as const,
     status,
   };
 
@@ -702,9 +707,9 @@ const pages = computed(() => [
     key: 'custom',
     kicker: 'Custom',
     title: '自定义角色',
-    line: '给她名字、脸、来历和说话方式。开场自己写，世界自己定；可以只写一个名字就开始，剩下的边玩边补。',
+    line: '名字、外貌、说话方式。开场自己写，写一半也能走。',
     meta: '本机保存 · 自动暂存',
-    button: '创建角色',
+    button: '新建角色',
     cover: '',
     badge: '',
     action: () => openCustom(),
@@ -713,8 +718,8 @@ const pages = computed(() => [
     key: 'official',
     kicker: 'Official',
     title: '白峰千鹤',
-    line: '清岭学园二年 A 班，成绩与体育常年第一。三条开场分别从早自习的教室、放学后的补习、以及她家门口开始；她不知道自己是机器人。',
-    meta: '档案只读 · 三条开场',
+    line: '清岭学园二年 A 班。三条开场：教室、放学后、她家门口。',
+    meta: '档案只读',
     button: '进入',
     cover: cardImage.value,
     badge: '官方',
@@ -727,8 +732,8 @@ const pages = computed(() => [
     key: 'manage',
     kicker: 'Library',
     title: '管理',
-    line: '只放你自己写的角色。保存或导入后就会出现在这里，可以导出成文件带走；官方角色与背景人物不会混进来。',
-    meta: '自定义角色 · 导入导出',
+    line: '你写过的角色。可以导出，也可以导入别人的。',
+    meta: '导入导出',
     button: '打开',
     cover: '',
     badge: '',
@@ -2133,107 +2138,168 @@ function scrollToPage(index: number) {
 .oh-desk {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-columns: 230px 1fr;
-}
-
-.oh-desk-rail {
-  border-right: 1px solid var(--line);
-  background: var(--panel);
-  padding: 26px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.oh-desk-brand {
-  font-family: Georgia, 'Songti SC', 'SimSun', serif;
-  font-size: 22px;
-  letter-spacing: 5px;
-  margin: 0 0 20px 10px;
-}
-
-.oh-desk-entry {
-  border: 0;
-  background: transparent;
-  text-align: left;
-  padding: 10px;
-  border-radius: 9px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  cursor: pointer;
-  color: var(--muted);
-  font-family: inherit;
-
-  span {
-    font-size: 8px;
-    letter-spacing: 2px;
-  }
-
-  b {
-    font-size: 14px;
-    color: var(--text);
-  }
-
-  small {
-    font-size: 9px;
-  }
-
-  &.active {
-    background: color-mix(in srgb, var(--accent) 9%, var(--panel));
-
-    b {
-      color: var(--accent);
-    }
-  }
+  position: relative;
+  overflow: hidden;
 }
 
 .oh-desk-stage {
-  display: flex;
-  min-width: 0;
-  min-height: 0;
-}
-
-.oh-desk-cover {
-  flex: 0 0 58%;
+  height: 100%;
   position: relative;
-  background-color: var(--bg-2);
-  background-size: cover;
-  background-position: center 25%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.oh-desk-info {
-  flex: 1;
-  min-width: 0;
-  padding: 46px 42px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 7px;
+  justify-content: flex-end;
+  background-color: var(--ink);
+  background-size: cover;
+  background-position: center 25%;
+}
+
+.oh-desk.no-cover .oh-desk-stage {
+  background: var(--ink);
+}
+
+.oh-desk-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(18, 15, 12, 0.8), rgba(18, 15, 12, 0.3) 58%, transparent),
+    linear-gradient(0deg, rgba(18, 15, 12, 0.74), transparent 48%);
+}
+
+.oh-desk-type {
+  position: absolute;
+  left: 56px;
+  top: 46px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.55);
+
+  span {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: rgba(255, 255, 255, 0.42);
+  }
+
+  b {
+    font-family: Georgia, 'Songti SC', 'SimSun', serif;
+    font-size: 42px;
+    font-weight: 500;
+    letter-spacing: 9px;
+    color: rgba(255, 255, 255, 0.84);
+  }
+
+  small {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+}
+
+.oh-desk-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 620px;
+  padding: 0 56px 116px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+
+  .oh-kicker {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.6);
+  }
 
   h2 {
-    margin: 0;
-    font-size: 38px;
+    margin: 2px 0 0;
+    font-size: 44px;
     letter-spacing: 1px;
   }
 
   p {
-    margin: 0;
-    max-width: 420px;
+    margin: 8px 0 0;
+    max-width: 460px;
     font-size: 14px;
     line-height: 1.9;
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .oh-page-meta {
+    color: rgba(255, 255, 255, 0.48);
   }
 
   .oh-btn {
     width: auto;
     min-width: 180px;
-    margin-top: 18px;
+    margin-top: 16px;
     padding: 12px 28px;
+    font-size: 14px;
+  }
+}
+
+.oh-desk-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(16, 13, 10, 0.34);
+  backdrop-filter: blur(9px);
+}
+
+.oh-desk-tab {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border: 0;
+  border-top: 2px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &.active {
+    color: #fff;
+    border-top-color: var(--accent);
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.oh-desk-thumb {
+  width: 38px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  background-size: cover;
+  background-position: center;
+}
+
+.oh-desk-tab-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  b {
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.48);
   }
 }
 

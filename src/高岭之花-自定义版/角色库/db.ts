@@ -40,6 +40,8 @@ export interface CharacterPreset {
   openings: StoredOpening[];
   world: CharacterWorld;
   source: 'custom' | 'official-copy';
+  /** controlled = 可被终端控制的角色；background = 背景人物，不进角色库 */
+  kind: 'controlled' | 'background';
   /** draft = 从未开始，自动保存；ready = 已经写过首楼 */
   status: 'draft' | 'ready';
   createdAt: number;
@@ -83,6 +85,8 @@ export function listCharacters(): Promise<CharacterPreset[]> {
     list
       .map(record => ({
         ...record,
+        kind: record.kind === 'background' ? 'background' : 'controlled',
+        status: record.status === 'ready' ? 'ready' : 'draft',
         profile: {
           姓名: record.profile?.姓名 ?? '',
           型号: record.profile?.型号 ?? '',
@@ -116,7 +120,7 @@ function newId(): string {
 
 export function makeCharacter(input: Omit<CharacterPreset, 'id' | 'createdAt' | 'updatedAt'>): CharacterPreset {
   const now = Date.now();
-  return { ...input, status: input.status ?? 'draft', id: newId(), createdAt: now, updatedAt: now };
+  return { ...input, kind: input.kind ?? 'controlled', status: input.status ?? 'draft', id: newId(), createdAt: now, updatedAt: now };
 }
 
 /** 导出为可分享的 JSON 文本 */
@@ -140,6 +144,7 @@ function toExportShape(record: CharacterPreset) {
     openings: record.openings,
     world: record.world,
     source: record.source,
+    kind: record.kind,
     status: record.status,
   };
 }
@@ -207,6 +212,7 @@ function parseCharacter(c: any): Omit<CharacterPreset, 'id' | 'createdAt' | 'upd
       设定: String(c.world?.设定 ?? ''),
     },
     source: c.source === 'official-copy' ? 'official-copy' : 'custom',
+    kind: c.kind === 'background' ? 'background' : 'controlled',
     status: c.status === 'ready' ? 'ready' : 'draft',
   };
 }
