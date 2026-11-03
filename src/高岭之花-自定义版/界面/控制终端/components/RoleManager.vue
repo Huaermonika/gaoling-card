@@ -13,7 +13,7 @@
           <span>受控角色</span>
           <button class="rm-add" type="button" @click="startCreate('受控')">＋ 新建</button>
         </div>
-        <p class="rm-hint">可被终端切换与控制；拥有完整状态与记忆。</p>
+        <p class="rm-hint">能切换、能控制，有完整状态和记忆。</p>
 
         <div v-for="[id, role] in controllable" :key="id" class="rm-row" :class="{ current: id === store.data.当前角色 }">
           <span class="rm-avatar" :style="artStyle(id)">
@@ -24,7 +24,7 @@
               {{ role.档案.姓名 || '未命名' }}
               <span v-if="id === store.data.当前角色" class="rm-badge">当前</span>
             </div>
-            <div class="rm-sub">{{ role.档案.型号 || '未填写型号' }} · 优先级 {{ role.优先级 }}</div>
+            <div class="rm-sub">{{ role.档案.型号 || '没型号' }} · 优先级 {{ role.优先级 }}</div>
           </div>
           <div class="rm-ops">
             <button class="rm-btn" type="button" :disabled="id === store.data.当前角色" @click="switchTo(id)">切换</button>
@@ -41,7 +41,7 @@
           <span>背景角色</span>
           <button class="rm-add" type="button" @click="startCreate('背景')">＋ 新建</button>
         </div>
-        <p class="rm-hint">只保留基础属性，不参与终端控制，也没有状态与记忆。</p>
+        <p class="rm-hint">只有基础资料。不能控制，也没有记忆。</p>
 
         <div v-for="[id, role] in backgrounds" :key="id" class="rm-row">
           <span class="rm-avatar bg" :style="artStyle(id)">
@@ -49,7 +49,7 @@
           </span>
           <div class="rm-main">
             <div class="rm-name">{{ role.档案.姓名 || '未命名' }}</div>
-            <div class="rm-sub">{{ role.档案.关系 || '未填写关系' }}</div>
+            <div class="rm-sub">{{ role.档案.关系 || '没写关系' }}</div>
           </div>
           <div class="rm-ops">
             <button class="rm-btn" type="button" @click="startEdit(id)">编辑</button>
@@ -58,7 +58,7 @@
             </button>
           </div>
         </div>
-        <p v-if="!backgrounds.length" class="rm-empty">还没有背景角色。</p>
+        <p v-if="!backgrounds.length" class="rm-empty">没有背景角色。</p>
       </section>
     </div>
 
@@ -69,46 +69,46 @@
           <span v-if="!form.头像">{{ initialOf(form.姓名 || '机') }}</span>
         </div>
         <div class="rm-art-ops">
-          <button class="rm-btn" type="button" @click="artInput?.click()">上传头像 / 立绘</button>
+          <button class="rm-btn" type="button" @click="artInput?.click()">上传图</button>
           <button v-if="form.头像" class="rm-btn" type="button" @click="form.头像 = ''">移除</button>
-          <p class="rm-hint">竖图会居中裁成方形头像，最大 512×512；只用于界面显示。</p>
+          <p class="rm-hint">裁成方图，最大 512。只显示用。</p>
         </div>
         <input ref="artInput" type="file" accept="image/*" style="display: none" @change="onArtChange" />
       </div>
 
       <label class="rm-field">
         <span>姓名 <i>必填</i></span>
-        <input v-model="form.姓名" type="text" maxlength="20" placeholder="例如：白峰千鹤" />
+        <input v-model="form.姓名" type="text" maxlength="20" placeholder="白峰千鹤" />
       </label>
 
       <template v-if="editingKind === '受控'">
         <label class="rm-field">
           <span>型号</span>
-          <input v-model="form.型号" type="text" maxlength="40" placeholder="例如：AN-0170A；留空时终端显示「控制终端」" />
+          <input v-model="form.型号" type="text" maxlength="40" placeholder="AN-0170A。空着就显示「控制终端」" />
         </label>
         <label class="rm-field">
           <span>外观</span>
-          <textarea v-model="form.外观" maxlength="300" rows="3" placeholder="外貌、体型、常见着装、可注意的机械特征" />
+          <textarea v-model="form.外观" maxlength="300" rows="3" placeholder="头发、身高、穿什么，有没有显眼的机械特征" />
         </label>
         <label class="rm-field">
           <span>性格</span>
-          <textarea v-model="form.性格" maxlength="300" rows="3" placeholder="决定语气与行为倾向；留空时按互动自然形成" />
+          <textarea v-model="form.性格" maxlength="300" rows="3" placeholder="她怎么说话，遇事什么反应。空着就按互动自然长" />
         </label>
         <label class="rm-field">
           <span>语言习惯</span>
-          <textarea v-model="form.语言习惯" maxlength="200" rows="2" placeholder="句长、称呼、口癖" />
+          <textarea v-model="form.语言习惯" maxlength="200" rows="2" placeholder="句子长短、怎么称呼人、有没有口癖" />
         </label>
         <label class="rm-field">
           <span>背景</span>
-          <textarea v-model="form.背景" maxlength="500" rows="3" placeholder="来历、经历、当前处境" />
+          <textarea v-model="form.背景" maxlength="500" rows="3" placeholder="从哪来，以前发生过什么，现在在哪" />
         </label>
         <label class="rm-field">
           <span>关系</span>
-          <textarea v-model="form.关系" maxlength="200" rows="2" placeholder="与持有者或其他角色的关系" />
+          <textarea v-model="form.关系" maxlength="200" rows="2" placeholder="和持有者、其他角色什么关系" />
         </label>
         <label class="rm-field">
           <span>其他</span>
-          <textarea v-model="form.其他" maxlength="300" rows="2" placeholder="其他补充" />
+          <textarea v-model="form.其他" maxlength="300" rows="2" placeholder="想到什么写什么" />
         </label>
         <div class="rm-field">
           <span>优先级</span>
@@ -124,22 +124,22 @@
               {{ p }}
             </button>
           </div>
-          <p class="rm-hint">1 最高：优先级越高，记忆注入条数与描写权重越高。</p>
+          <p class="rm-hint">1 最高。越高，记忆给得越多，描写也越多。</p>
         </div>
       </template>
 
       <template v-else>
         <label class="rm-field">
           <span>外观</span>
-          <textarea v-model="form.外观" maxlength="300" rows="3" placeholder="路人的可见外貌" />
+          <textarea v-model="form.外观" maxlength="300" rows="3" placeholder="别人能看到的模样" />
         </label>
         <label class="rm-field">
           <span>关系</span>
-          <textarea v-model="form.关系" maxlength="200" rows="2" placeholder="与持有者或主要角色的关系" />
+          <textarea v-model="form.关系" maxlength="200" rows="2" placeholder="和持有者、主要角色什么关系" />
         </label>
         <label class="rm-field">
           <span>备注</span>
-          <textarea v-model="form.备注" maxlength="300" rows="2" placeholder="其他补充" />
+          <textarea v-model="form.备注" maxlength="300" rows="2" placeholder="想到什么写什么" />
         </label>
       </template>
 
@@ -286,7 +286,7 @@ function startEdit(id: string) {
 function save() {
   const name = form.姓名.trim();
   if (!name) {
-    error.value = '姓名必填。';
+    error.value = '名字没填。';
     return;
   }
   const duplicate = Object.entries(store.data.角色).some(
@@ -374,7 +374,7 @@ function askDelete(id: string) {
   const role = store.data.角色[id];
   if (!role) return;
   if (role.类型 === '受控' && 受控角色列表(store.data).length <= 1) {
-    error.value = '至少保留一个受控角色。';
+    error.value = '至少留一个能控制的。';
     confirmId.value = null;
     return;
   }

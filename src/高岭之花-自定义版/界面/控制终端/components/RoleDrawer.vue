@@ -7,7 +7,7 @@
         <b>当前角色</b>
         <span class="rd-count">{{ roles.length }} 台受控</span>
       </div>
-      <p class="rd-tip">左右滑动 · 点按角色卡切换</p>
+      <p class="rd-tip">点一张就切。</p>
 
       <div class="rd-list">
         <button
@@ -22,7 +22,7 @@
             <span v-if="!getRoleArt(id)">{{ initialOf(role.档案.姓名 || id) }}</span>
           </span>
           <span class="rd-name">{{ role.档案.姓名 || '未命名' }}</span>
-          <span class="rd-meta">{{ role.档案.型号 || '未填写型号' }}</span>
+          <span class="rd-meta">{{ role.档案.型号 || '没型号' }}</span>
           <span class="rd-state">{{ stateOf(role) }}</span>
         </button>
 
@@ -34,7 +34,7 @@
       </div>
 
       <div class="rd-actions">
-        <button class="rd-btn" type="button" @click="emit('manage')">管理角色（编辑 / 删除 / 优先级）</button>
+        <button class="rd-btn" type="button" @click="emit('manage')">管理</button>
         <button class="rd-btn ghost" type="button" @click="emit('close')">关闭</button>
       </div>
     </div>

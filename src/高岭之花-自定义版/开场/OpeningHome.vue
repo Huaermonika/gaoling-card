@@ -126,7 +126,7 @@
       </div>
 
       <footer class="oh-foot">
-        <span class="oh-hint">开场写入首楼后不可更换；想换只能新聊天。</span>
+        <span class="oh-hint">开场只写一次。要换，只能开新聊天。</span>
         <button class="oh-btn primary big" type="button" :disabled="busy" @click="startOfficial">
           {{ busy ? '正在写入…' : '开始' }}
         </button>
@@ -163,27 +163,27 @@
               <div class="oh-avatar-ops">
                 <button class="oh-mini" type="button" @click="avatarInput?.click()">上传立绘</button>
                 <button v-if="form.avatar" class="oh-mini" type="button" @click="form.avatar = ''">移除</button>
-                <small>方形裁切；也可以留空，之后再补。</small>
+                <small>方图。空着也行，之后补。</small>
               </div>
               <input ref="avatarInput" type="file" accept="image/*" style="display: none" @change="onAvatar" />
             </div>
             <div class="oh-grid">
-              <label class="oh-field"><span>姓名 <i>必填</i></span><input v-model="form.姓名" maxlength="20" placeholder="例如：岚" /></label>
-              <label class="oh-field"><span>型号</span><input v-model="form.型号" maxlength="30" placeholder="例如：HK-7" /></label>
+              <label class="oh-field"><span>姓名 <i>必填</i></span><input v-model="form.姓名" maxlength="20" placeholder="岚" /></label>
+              <label class="oh-field"><span>型号</span><input v-model="form.型号" maxlength="30" placeholder="HK-7" /></label>
             </div>
-            <label class="oh-field"><span>外观</span><textarea v-model="form.外观" rows="3" placeholder="外形、体型、常见着装" /></label>
-            <label class="oh-field"><span>性格</span><textarea v-model="form.性格" rows="3" placeholder="语气与行为倾向" /></label>
-            <label class="oh-field"><span>语言习惯</span><textarea v-model="form.语言习惯" rows="2" placeholder="句长、称呼、口癖" /></label>
-            <label class="oh-field"><span>背景</span><textarea v-model="form.背景" rows="3" placeholder="来历、经历、当前处境" /></label>
-            <label class="oh-field"><span>关系</span><textarea v-model="form.关系" rows="3" placeholder="与持有者的关系" /></label>
-            <label class="oh-field"><span>其他</span><textarea v-model="form.其他" rows="2" placeholder="补充" /></label>
+            <label class="oh-field"><span>外观</span><textarea v-model="form.外观" rows="3" placeholder="头发、身高、穿什么" /></label>
+            <label class="oh-field"><span>性格</span><textarea v-model="form.性格" rows="3" placeholder="她怎么说话，遇事什么反应" /></label>
+            <label class="oh-field"><span>语言习惯</span><textarea v-model="form.语言习惯" rows="2" placeholder="句子长短、怎么称呼人、有没有口癖" /></label>
+            <label class="oh-field"><span>背景</span><textarea v-model="form.背景" rows="3" placeholder="从哪来，以前发生过什么，现在在哪" /></label>
+            <label class="oh-field"><span>关系</span><textarea v-model="form.关系" rows="3" placeholder="和持有者是什么关系" /></label>
+            <label class="oh-field"><span>其他</span><textarea v-model="form.其他" rows="2" placeholder="想到什么写什么" /></label>
           </template>
 
           <template v-else-if="currentSection === 'opening'">
             <label class="oh-field"><span>开场名称</span><input v-model="form.开场名称" maxlength="30" /></label>
             <label class="oh-field"><span>开场正文</span><textarea v-model="form.开场白" rows="8" /></label>
-            <button class="oh-mini" type="button" @click="useTemplate">用角色字段生成通用开场</button>
-            <div class="oh-preview"><span>预览</span><p>{{ previewText(form.开场白 || defaultCustomText(form.姓名), 220) }}</p></div>
+            <button class="oh-mini" type="button" @click="useTemplate">用上面填的生成一段</button>
+            <div class="oh-preview"><span>开头</span><p>{{ previewText(form.开场白 || defaultCustomText(form.姓名), 220) }}</p></div>
           </template>
 
           <template v-else-if="currentSection === 'world'">
@@ -193,11 +193,11 @@
               <label class="oh-field"><span>起始时间</span><input v-model="form.时间" maxlength="30" /></label>
               <label class="oh-field"><span>当前处境</span><input v-model="form.处境" maxlength="60" /></label>
             </div>
-            <label class="oh-field"><span>世界设定</span><textarea v-model="form.设定" rows="5" placeholder="时代、城市、机构、公开规则；可留空" /></label>
+            <label class="oh-field"><span>世界设定</span><textarea v-model="form.设定" rows="5" placeholder="时代、城市、规矩。空着也行" /></label>
           </template>
 
           <template v-else-if="currentSection === 'memory'">
-            <p class="oh-note">开场会预置两条记忆，随角色一起写入；之后由剧情和终端继续累积。</p>
+            <p class="oh-note">开局会写两条记忆：连接建立、第一次见面。之后靠剧情加。</p>
             <div class="oh-memory">
               <div><span>{{ form.时间 || '开局时间' }}</span><p>终端第一次亮起，连接建立。</p></div>
               <div><span>{{ form.时间 || '开局时间' }}</span><p>{{ form.姓名 || '她' }}第一次在{{ form.地点 || '房间' }}见到持有者。</p></div>
@@ -212,7 +212,7 @@
               <div><span>世界</span><b>{{ form.地点 || '默认' }} · {{ form.时间 || '默认' }}</b></div>
             </div>
             <div class="oh-preview"><span>开场</span><p>{{ previewText(form.开场白 || defaultCustomText(form.姓名), 260) }}</p></div>
-            <p class="oh-note">开始后状态变为「已完成」，仍可在管理页继续修改。</p>
+            <p class="oh-note">开始后也能在管理里改。</p>
           </template>
 
           <p v-if="error" class="oh-error">{{ error }}</p>
@@ -220,8 +220,8 @@
       </div>
 
       <footer class="oh-foot">
-        <button class="oh-mini" type="button" @click="persist('draft')">立即暂存</button>
-        <span class="oh-hint">{{ form.姓名 ? '草稿会自动保存。' : '填写姓名后才能开始。' }}</span>
+        <button class="oh-mini" type="button" @click="persist('draft')">先存着</button>
+        <span class="oh-hint">{{ form.姓名 ? '自动存。' : '名字填了才能开始。' }}</span>
         <button class="oh-btn primary" type="button" :disabled="busy || !form.姓名.trim()" @click="startCustom">
           {{ busy ? '正在写入…' : '开始' }}
         </button>
@@ -252,7 +252,7 @@
 
         <template v-if="manageTab === 'mine'">
           <div v-if="!mine.length" class="oh-empty">
-            <p>还没有保存的角色。</p>
+            <p>这里还是空的。</p>
             <button class="oh-btn primary" type="button" @click="openCustom()">新建角色</button>
           </div>
 
@@ -278,20 +278,20 @@
 
         <div v-else class="oh-workshop">
           <b>创意工坊</b>
-          <p>浏览官方审核过的玩家角色，选中后导入本机使用。</p>
-          <span>接口预留，尚未开放</span>
+          <p>官方审核过的玩家角色会放这里。现在还没有接口。</p>
+          <span>还没接</span>
         </div>
 
         <div class="oh-section">导入导出</div>
         <div class="oh-help">
-          <p>单角色导出为 `.json`；「导出全部」是合集，可以一次搬走整个角色库。</p>
-          <p>导入会并入角色库，不覆盖同名角色。</p>
+          <p>单角色导出是一个 JSON。导出全部会把整个库打成一个文件。</p>
+          <p>导入只添加，不改同名角色。</p>
         </div>
         <p v-if="error" class="oh-error">{{ error }}</p>
       </div>
 
       <footer class="oh-foot">
-        <span class="oh-hint">角色库保存在本机浏览器；换设备请用导出/导入。</span>
+        <span class="oh-hint">库在本机。换设备就导出再导入。</span>
         <button class="oh-btn primary" type="button" @click="openCustom()">新建角色</button>
       </footer>
     </template>
@@ -577,7 +577,7 @@ async function startOfficial() {
 
 async function startCustom() {
   if (!form.姓名.trim()) {
-    error.value = '姓名必填。';
+    error.value = '名字没填。';
     currentSection.value = 'role';
     return;
   }
@@ -624,7 +624,7 @@ async function onAvatar(event: Event) {
 
 function useTemplate() {
   if (!form.姓名.trim()) {
-    error.value = '先填姓名，再生成通用开场。';
+    error.value = '先填名字。';
     currentSection.value = 'role';
     return;
   }
@@ -707,8 +707,8 @@ const pages = computed(() => [
     key: 'custom',
     kicker: 'Custom',
     title: '自定义角色',
-    line: '名字、外貌、说话方式。开场自己写，写一半也能走。',
-    meta: '本机保存 · 自动暂存',
+    line: '名字填了就能开始。开场写一半退出，草稿还在。',
+    meta: '存在本机',
     button: '新建角色',
     cover: '',
     badge: '',
@@ -732,7 +732,7 @@ const pages = computed(() => [
     key: 'manage',
     kicker: 'Library',
     title: '管理',
-    line: '你写过的角色。可以导出，也可以导入别人的。',
+    line: '你存过的角色。导出是一个 JSON。',
     meta: '导入导出',
     button: '打开',
     cover: '',
