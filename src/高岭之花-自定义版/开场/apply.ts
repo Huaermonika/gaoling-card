@@ -29,7 +29,13 @@ export async function applyOpening(preset: OpeningPreset, messageId: number): Pr
   const data = klona(preset.data);
   await updateVariablesWith(vars => _.set(vars, 'stat_data', data), { type: 'message', message_id: messageId });
 
-  await setChatMessages([{ message_id: messageId, message: preset.text }], { refresh: 'affected' });
+  // 首楼只写正文；initvar 已经单独写进 stat_data，不再留在聊天记录里
+  const text = preset.text
+    .replace(/<initvar>[\s\S]*?<\/initvar>/g, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .trim();
+
+  await setChatMessages([{ message_id: messageId, message: text }], { refresh: 'affected' });
 
   const chat = (getVariables({ type: 'chat' }) ?? {}) as Record<string, unknown>;
   await replaceVariables({ ...chat, [CHAT_KEY]: true, ch_opening_id: preset.id }, { type: 'chat' });

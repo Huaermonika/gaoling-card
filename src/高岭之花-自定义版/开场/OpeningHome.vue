@@ -2,43 +2,85 @@
   <div class="oh-overlay">
     <!-- 首页：整页翻页 -->
     <template v-if="view === 'home'">
-      <div class="oh-pager-wrap">
-        <button class="oh-nav prev" type="button" :disabled="pageIndex === 0" @click="scrollToPage(pageIndex - 1)">‹</button>
+      <!-- 桌面：左侧入口栏 + 右侧主画面 -->
+      <div v-if="isDesktop" class="oh-desk">
+        <aside class="oh-desk-rail">
+          <div class="oh-desk-brand">高岭之花</div>
+          <button
+            v-for="page in pages"
+            :key="page.key"
+            type="button"
+            class="oh-desk-entry"
+            :class="{ active: desktopPage === page.key }"
+            @click="desktopPage = page.key"
+          >
+            <span>{{ page.kicker }}</span>
+            <b>{{ page.title }}</b>
+            <small>{{ page.meta }}</small>
+          </button>
+        </aside>
 
-        <div ref="pager" class="oh-pager" @scroll="onPagerScroll">
-          <article v-for="page in pages" :key="page.key" class="oh-page" :class="page.key">
-            <div class="oh-cover" :style="page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}">
-              <div v-if="!page.cover" class="oh-placeholder" :class="page.key">
-                <span class="oh-ph-label">{{ page.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
-                <b>{{ page.key === 'custom' ? '你的角色' : '角色库' }}</b>
-                <small>{{ page.key === 'custom' ? '创建后可上传立绘' : '草稿 · 导入导出' }}</small>
+        <section class="oh-desk-stage">
+          <div class="oh-desk-cover" :style="desktopSelected?.cover ? { backgroundImage: `url(&quot;${desktopSelected.cover}&quot;)` } : {}">
+            <div v-if="!desktopSelected?.cover" class="oh-placeholder" :class="desktopSelected?.key">
+              <span class="oh-ph-label">{{ desktopSelected?.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
+              <b>{{ desktopSelected?.key === 'custom' ? '你的角色' : '角色库' }}</b>
+              <small>{{ desktopSelected?.key === 'custom' ? '创建后可上传立绘' : '草稿 · 导入导出' }}</small>
+            </div>
+            <span v-if="desktopSelected?.badge" class="oh-badge">{{ desktopSelected.badge }}</span>
+          </div>
+
+          <div class="oh-desk-info">
+            <span class="oh-kicker">{{ desktopSelected?.kicker }}</span>
+            <h2>{{ desktopSelected?.title }}</h2>
+            <p>{{ desktopSelected?.line }}</p>
+            <span class="oh-page-meta">{{ desktopSelected?.meta }}</span>
+            <button class="oh-btn primary big" type="button" @click="desktopSelected?.action()">
+              {{ desktopSelected?.button }}
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <template v-else>
+        <div class="oh-pager-wrap">
+          <button class="oh-nav prev" type="button" :disabled="pageIndex === 0" @click="scrollToPage(pageIndex - 1)">‹</button>
+
+          <div ref="pager" class="oh-pager" @scroll="onPagerScroll">
+            <article v-for="page in pages" :key="page.key" class="oh-page" :class="page.key">
+              <div class="oh-cover" :style="page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}">
+                <div v-if="!page.cover" class="oh-placeholder" :class="page.key">
+                  <span class="oh-ph-label">{{ page.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
+                  <b>{{ page.key === 'custom' ? '你的角色' : '角色库' }}</b>
+                  <small>{{ page.key === 'custom' ? '创建后可上传立绘' : '草稿 · 导入导出' }}</small>
+                </div>
+                <span v-if="page.badge" class="oh-badge">{{ page.badge }}</span>
               </div>
-              <span v-if="page.badge" class="oh-badge">{{ page.badge }}</span>
-            </div>
 
-            <div class="oh-page-caption">
-              <span class="oh-kicker">{{ page.kicker }}</span>
-              <h2>{{ page.title }}</h2>
-              <p>{{ page.line }}</p>
-              <span class="oh-page-meta">{{ page.meta }}</span>
-              <button class="oh-btn primary big" type="button" @click="page.action">{{ page.button }}</button>
-            </div>
-          </article>
+              <div class="oh-page-caption">
+                <span class="oh-kicker">{{ page.kicker }}</span>
+                <h2>{{ page.title }}</h2>
+                <p>{{ page.line }}</p>
+                <span class="oh-page-meta">{{ page.meta }}</span>
+                <button class="oh-btn primary big" type="button" @click="page.action">{{ page.button }}</button>
+              </div>
+            </article>
+          </div>
+
+          <button class="oh-nav next" type="button" :disabled="pageIndex === pages.length - 1" @click="scrollToPage(pageIndex + 1)">›</button>
         </div>
 
-        <button class="oh-nav next" type="button" :disabled="pageIndex === pages.length - 1" @click="scrollToPage(pageIndex + 1)">›</button>
-      </div>
-
-      <div class="oh-dots">
-        <button v-for="(page, index) in pages" :key="page.key" type="button" class="oh-dot" :class="{ active: pageIndex === index }" @click="scrollToPage(index)" />
-      </div>
+        <div class="oh-dots">
+          <button v-for="(page, index) in pages" :key="page.key" type="button" class="oh-dot" :class="{ active: pageIndex === index }" @click="scrollToPage(index)" />
+        </div>
+      </template>
     </template>
 
     <!-- 千鹤子页 -->
     <template v-else-if="view === 'official'">
       <div class="oh-official-hero" :style="cardImage ? { backgroundImage: `url(&quot;${cardImage}&quot;)` } : {}">
         <div class="oh-shade" />
-        <button class="oh-back floating" type="button" @click="view = 'home'">← 返回</button>
+        <button class="oh-back floating" type="button" @click="goHome()">← 返回</button>
         <span class="oh-tag floating">官方</span>
       </div>
 
@@ -187,7 +229,7 @@
     <!-- 管理 -->
     <template v-else>
       <header class="oh-sub-head">
-        <button class="oh-back" type="button" @click="view = 'home'">← 返回</button>
+        <button class="oh-back" type="button" @click="goHome()">← 返回</button>
         <b>管理</b>
         <div class="oh-manage-actions">
           <button class="oh-mini" type="button" @click="importInput?.click()">导入</button>
@@ -255,7 +297,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { 千鹤开场, buildCustomOpening, defaultCustomText, previewText } from './presets';
 import { applyOpening } from './apply';
 import { fileToAvatar, getCardImage } from '../界面/控制终端/role-art';
@@ -277,6 +319,7 @@ const emit = defineEmits<{ done: [] }>();
 const view = ref<'home' | 'official' | 'custom' | 'manage'>('home');
 const pager = ref<HTMLElement | null>(null);
 const pageIndex = ref(0);
+const isDesktop = ref(false);
 const busy = ref(false);
 const error = ref('');
 
@@ -343,6 +386,11 @@ let saveTimer: number | undefined;
 let suppressWatch = false;
 
 onMounted(async () => {
+  const media = window.matchMedia('(min-width: 900px)');
+  isDesktop.value = media.matches;
+  media.addEventListener('change', event => {
+    isDesktop.value = event.matches;
+  });
   await refreshLibrary();
 });
 
@@ -491,10 +539,18 @@ function openCustom(record?: CharacterPreset) {
   }, 0);
 }
 
+function goHome() {
+  view.value = 'home';
+  pageIndex.value = 0;
+  nextTick(() => {
+    pager.value?.scrollTo({ left: 0 });
+  });
+}
+
 function backFromCustom() {
   if (saveTimer) window.clearTimeout(saveTimer);
   if (hasContent()) void persist('draft');
-  view.value = 'home';
+  goHome();
 }
 
 function editCharacter(record: CharacterPreset) {
@@ -682,6 +738,9 @@ const pages = computed(() => [
     },
   },
 ]);
+
+const desktopPage = ref<'custom' | 'official' | 'manage'>('custom');
+const desktopSelected = computed(() => pages.value.find(page => page.key === desktopPage.value) ?? pages.value[0]);
 
 function onPagerScroll() {
   const element = pager.value;
@@ -1393,7 +1452,13 @@ function scrollToPage(index: number) {
 .oh-manage-actions {
   margin-left: auto;
   display: flex;
-  gap: 5px;
+  gap: 6px;
+
+  .oh-mini {
+    padding: 7px 12px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
 }
 
 .oh-workshop {
@@ -1523,8 +1588,8 @@ function scrollToPage(index: number) {
     border: 0;
     background: transparent;
     color: var(--muted);
-    padding: 6px 0;
-    font-size: 9.5px;
+    padding: 9px 0;
+    font-size: 10.5px;
     font-family: inherit;
     cursor: pointer;
 
@@ -2065,7 +2130,114 @@ function scrollToPage(index: number) {
   font-size: 10.5px;
 }
 
-@media (min-width: 720px) {
+.oh-desk {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 230px 1fr;
+}
+
+.oh-desk-rail {
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+  padding: 26px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.oh-desk-brand {
+  font-family: Georgia, 'Songti SC', 'SimSun', serif;
+  font-size: 22px;
+  letter-spacing: 5px;
+  margin: 0 0 20px 10px;
+}
+
+.oh-desk-entry {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 10px;
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: inherit;
+
+  span {
+    font-size: 8px;
+    letter-spacing: 2px;
+  }
+
+  b {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  small {
+    font-size: 9px;
+  }
+
+  &.active {
+    background: color-mix(in srgb, var(--accent) 9%, var(--panel));
+
+    b {
+      color: var(--accent);
+    }
+  }
+}
+
+.oh-desk-stage {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.oh-desk-cover {
+  flex: 0 0 58%;
+  position: relative;
+  background-color: var(--bg-2);
+  background-size: cover;
+  background-position: center 25%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oh-desk-info {
+  flex: 1;
+  min-width: 0;
+  padding: 46px 42px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+
+  h2 {
+    margin: 0;
+    font-size: 38px;
+    letter-spacing: 1px;
+  }
+
+  p {
+    margin: 0;
+    max-width: 420px;
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+
+  .oh-btn {
+    width: auto;
+    min-width: 180px;
+    margin-top: 18px;
+    padding: 12px 28px;
+  }
+}
+
+@media (min-width: 900px) {
   .oh-pager {
     overflow: hidden;
   }
