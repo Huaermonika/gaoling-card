@@ -65,7 +65,6 @@
                 <div class="app-model">{{ roleModel }} · 控制终端 <i class="brand-caret">▾</i></div>
               </div>
             </div>
-            <button class="app-gallery" type="button" title="画廊" @click="galleryOpen = true">▣</button>
             <span class="app-state" :class="stateClass">{{ store.data.千鹤.意识状态 }}</span>
           </div>
           <div v-if="showSwitchHint" class="switch-hint" @click="dismissSwitchHint">
@@ -244,7 +243,6 @@
                     <div class="app-model">{{ roleModel }} · 控制终端 <i class="brand-caret">▾</i></div>
                   </div>
                 </div>
-                <button class="app-gallery" type="button" title="画廊" @click="galleryOpen = true">▣</button>
                 <span class="app-state" :class="stateClass">{{ store.data.千鹤.意识状态 }}</span>
               </div>
               <div v-if="showSwitchHint" class="switch-hint" @click="dismissSwitchHint">
@@ -313,6 +311,7 @@
       </main>
     </template>
 
+    <OpeningWizard v-if="openingPending" :message-id="0" @done="openingPending = false" />
     <RoleDrawer
       v-if="roleDrawerOpen"
       @close="roleDrawerOpen = false"
@@ -320,7 +319,6 @@
       @create="createFromDrawer"
     />
     <RoleManager v-if="roleManagerOpen" :start-create="roleManagerCreate" @close="closeRoleManager" />
-    <GalleryPanel v-if="galleryOpen" @close="galleryOpen = false" />
   </div>
 </template>
 
@@ -340,7 +338,8 @@ import SystemPanel from '../../界面/控制终端/components/SystemPanel.vue';
 import SettingsPanel from './SettingsPanel.vue';
 import RoleManager from '../../界面/控制终端/components/RoleManager.vue';
 import RoleDrawer from '../../界面/控制终端/components/RoleDrawer.vue';
-import GalleryPanel from '../../画廊/GalleryPanel.vue';
+import OpeningWizard from '../../开场/OpeningWizard.vue';
+import { isOpeningDone } from '../../开场/apply';
 import { getRoleArt } from '../../界面/控制终端/role-art';
 import { ensurePresetArt, getCardImage } from '../../界面/控制终端/role-art';
 import FlatConsole from './FlatConsole.vue';
@@ -387,7 +386,7 @@ const roles = computed(() => controllableRoles(store.data));
 const roleManagerOpen = ref(false);
 const roleManagerCreate = ref(false);
 const roleDrawerOpen = ref(false);
-const galleryOpen = ref(false);
+const openingPending = ref(false);
 const showSwitchHint = ref(false);
 let switchHintTimer: number | undefined;
 
@@ -405,6 +404,9 @@ function dismissSwitchHint() {
 }
 
 onMounted(() => {
+  // 首楼且尚未完成开场：接管首楼，显示开场设置
+  if (getCurrentMessageId() === 0 && !isOpeningDone()) openingPending.value = true;
+
   // 千鹤的预设头像 = 当前角色卡卡图，只播种一次；玩家删掉后不再补
   if (store.data.角色['千鹤']) ensurePresetArt('千鹤', getCardImage());
 
@@ -1054,26 +1056,6 @@ const dialogHtml = computed(() => context.message || '');
     color: var(--blue);
     border-color: var(--blue);
     background: color-mix(in srgb, var(--blue) 12%, transparent);
-  }
-}
-
-.app-gallery {
-  margin-left: auto;
-  margin-right: 7px;
-  width: 26px;
-  height: 26px;
-  flex-shrink: 0;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel);
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-
-  &:hover {
-    color: var(--accent);
-    border-color: var(--accent);
   }
 }
 
