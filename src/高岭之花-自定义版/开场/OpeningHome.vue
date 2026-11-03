@@ -1,77 +1,58 @@
 <template>
   <div class="oh-overlay">
-    <!-- 首页：多页并列 -->
+    <!-- 首页：整页翻页 -->
     <template v-if="view === 'home'">
-      <header class="oh-top">
-        <div>
-          <b>高岭之花</b>
-          <span>选择角色，开始一段故事</span>
-        </div>
-        <span class="oh-version">AN-0170A</span>
-      </header>
+      <div class="oh-pager-wrap">
+        <button class="oh-nav prev" type="button" :disabled="pageIndex === 0" @click="scrollToPage(pageIndex - 1)">‹</button>
 
-      <div ref="pager" class="oh-pager" @scroll="onPagerScroll">
-        <article v-for="page in pages" :key="page.key" class="oh-page" :class="page.key">
-          <div class="oh-cover" :style="page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}">
-            <div v-if="!page.cover" class="oh-placeholder" :class="page.key">
-              <span class="oh-ph-label">{{ page.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
-              <b>{{ page.key === 'custom' ? '你的角色' : '角色库' }}</b>
-              <small>{{ page.key === 'custom' ? '创建后可上传立绘' : '草稿 · 导入导出' }}</small>
+        <div ref="pager" class="oh-pager" @scroll="onPagerScroll">
+          <article v-for="page in pages" :key="page.key" class="oh-page" :class="page.key">
+            <div class="oh-cover" :style="page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}">
+              <div v-if="!page.cover" class="oh-placeholder" :class="page.key">
+                <span class="oh-ph-label">{{ page.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
+                <b>{{ page.key === 'custom' ? '你的角色' : '角色库' }}</b>
+                <small>{{ page.key === 'custom' ? '创建后可上传立绘' : '草稿 · 导入导出' }}</small>
+              </div>
+              <div class="oh-shade" />
+              <span v-if="page.badge" class="oh-badge">{{ page.badge }}</span>
+              <div class="oh-page-caption">
+                <span class="oh-kicker">{{ page.kicker }}</span>
+                <h2>{{ page.title }}</h2>
+                <p>{{ page.line }}</p>
+                <button class="oh-btn primary big" type="button" @click="page.action">{{ page.button }}</button>
+              </div>
             </div>
-            <span v-if="page.badge" class="oh-badge">{{ page.badge }}</span>
-          </div>
-          <div class="oh-page-body">
-            <span class="oh-kicker">{{ page.kicker }}</span>
-            <h2>{{ page.title }}</h2>
-            <p>{{ page.line }}</p>
-            <button class="oh-btn" type="button" @click="page.action">{{ page.button }}</button>
-          </div>
-        </article>
+          </article>
+        </div>
+
+        <button class="oh-nav next" type="button" :disabled="pageIndex === pages.length - 1" @click="scrollToPage(pageIndex + 1)">›</button>
       </div>
 
       <div class="oh-dots">
         <button v-for="(page, index) in pages" :key="page.key" type="button" class="oh-dot" :class="{ active: pageIndex === index }" @click="scrollToPage(index)" />
       </div>
-
-      <div v-if="drafts.length" class="oh-recent">
-        <span>继续草稿</span>
-        <button v-for="item in drafts.slice(0, 2)" :key="item.id" type="button" @click="editCharacter(item)">
-          {{ item.name || '未命名' }} · {{ timeText(item.updatedAt) }}
-        </button>
-      </div>
     </template>
 
     <!-- 千鹤子页 -->
     <template v-else-if="view === 'official'">
-      <header class="oh-sub-head">
-        <button class="oh-back" type="button" @click="view = 'home'">← 返回</button>
-        <b>白峰千鹤</b>
-        <span class="oh-tag">官方</span>
-      </header>
+      <div class="oh-official-hero" :style="cardImage ? { backgroundImage: `url(&quot;${cardImage}&quot;)` } : {}">
+        <div class="oh-shade" />
+        <button class="oh-back floating" type="button" @click="view = 'home'">← 返回</button>
+        <span class="oh-tag floating">官方</span>
+      </div>
+
+      <div class="oh-official-title">
+        <h2>{{ officialProfile.姓名 || '白峰千鹤' }}</h2>
+        <span>{{ officialProfile.型号 || 'AN-0170A' }}</span>
+      </div>
 
       <div class="oh-sub-body">
-        <div class="oh-hero">
-          <div class="oh-hero-img" :style="cardImage ? { backgroundImage: `url(&quot;${cardImage}&quot;)` } : {}" />
-          <div class="oh-hero-text">
-            <h2>{{ officialProfile.姓名 || '白峰千鹤' }}</h2>
-            <span>{{ officialProfile.型号 || 'AN-0170A' }}</span>
-            <p>{{ officialProfile.外观 }}</p>
-          </div>
-        </div>
-
-        <div class="oh-rows">
-          <div><span>性格</span><p>{{ officialProfile.性格 }}</p></div>
-          <div><span>背景</span><p>{{ officialProfile.背景 }}</p></div>
-          <div><span>关系</span><p>{{ officialProfile.关系 }}</p></div>
-        </div>
-
-        <div class="oh-section">选择故事</div>
-        <div class="oh-stories">
+        <div class="oh-story-tabs">
           <button
             v-for="preset in presets"
             :key="preset.id"
             type="button"
-            class="oh-story"
+            class="oh-story-tab"
             :class="{ active: selectedOfficial === preset.id }"
             @click="selectedOfficial = preset.id"
           >
@@ -80,15 +61,28 @@
           </button>
         </div>
 
-        <div class="oh-preview">
-          <span>开场首句</span>
-          <p>{{ firstSentence(activeOfficial?.text ?? '') }}</p>
+        <div class="oh-reading">
+          <div class="oh-reading-head">
+            <span>开场全文</span>
+            <b>{{ activeOfficial?.name }}</b>
+          </div>
+          <p>{{ openingFull }}</p>
         </div>
+
+        <details class="oh-dossier">
+          <summary>档案与设定</summary>
+          <p class="oh-official-desc">{{ officialProfile.外观 }}</p>
+          <div class="oh-rows">
+            <div><span>性格</span><p>{{ officialProfile.性格 }}</p></div>
+            <div><span>背景</span><p>{{ officialProfile.背景 }}</p></div>
+            <div><span>关系</span><p>{{ officialProfile.关系 }}</p></div>
+          </div>
+        </details>
       </div>
 
       <footer class="oh-foot">
         <span class="oh-hint">开场写入首楼后不可更换；想换只能新聊天。</span>
-        <button class="oh-btn primary" type="button" :disabled="busy" @click="startOfficial">
+        <button class="oh-btn primary big" type="button" :disabled="busy" @click="startOfficial">
           {{ busy ? '正在写入…' : '开始' }}
         </button>
       </footer>
@@ -200,24 +194,41 @@
       </header>
 
       <div class="oh-sub-body">
-        <div class="oh-section">角色库</div>
-        <div v-if="!saved.length" class="oh-empty">
-          <p>还没有保存的角色。</p>
-          <button class="oh-btn" type="button" @click="openCustom()">新建角色</button>
+        <div class="oh-lib-tabs">
+          <button
+            v-for="item in filters"
+            :key="item.key"
+            type="button"
+            class="oh-filter"
+            :class="{ active: filter === item.key }"
+            @click="filter = item.key"
+          >
+            {{ item.label }} <i>{{ item.count }}</i>
+          </button>
         </div>
-        <div v-else class="oh-lib">
-          <div v-for="item in saved" :key="item.id" class="oh-lib-item">
-            <div class="oh-lib-avatar" :style="item.avatar ? { backgroundImage: `url(&quot;${item.avatar}&quot;)` } : {}">
-              {{ item.avatar ? '' : firstChar(item.name) }}
+
+        <div v-if="!filtered.length" class="oh-empty">
+          <p>{{ filter === 'all' ? '还没有保存的角色。' : '这个分类下还没有角色。' }}</p>
+          <button class="oh-btn primary" type="button" @click="openCustom()">新建角色</button>
+        </div>
+
+        <div v-else class="oh-lib-grid">
+          <article v-for="item in filtered" :key="item.id" class="oh-card">
+            <button class="oh-card-main" type="button" @click="editCharacter(item)">
+              <div class="oh-card-cover" :style="item.avatar ? { backgroundImage: `url(&quot;${item.avatar}&quot;)` } : {}">
+                {{ item.avatar ? '' : firstChar(item.name) }}
+              </div>
+              <div class="oh-card-info">
+                <b>{{ item.name || '未命名角色' }}</b>
+                <span>{{ item.profile.型号 || '未填写型号' }}</span>
+                <em>{{ item.status === 'draft' ? '草稿' : '已完成' }} · {{ timeText(item.updatedAt) }}</em>
+              </div>
+            </button>
+            <div class="oh-card-actions">
+              <button type="button" @click="exportOne(item)">导出</button>
+              <button type="button" class="danger" @click="removeCharacter(item)">删除</button>
             </div>
-            <div class="oh-lib-text">
-              <b>{{ item.name || '未命名角色' }}</b>
-              <span>{{ item.profile.型号 || '未填写型号' }} · {{ item.status === 'draft' ? '草稿' : '已完成' }} · {{ timeText(item.updatedAt) }}</span>
-            </div>
-            <button class="oh-mini" type="button" @click="editCharacter(item)">编辑</button>
-            <button class="oh-mini" type="button" @click="exportOne(item)">导出</button>
-            <button class="oh-mini danger" type="button" @click="removeCharacter(item)">删除</button>
-          </div>
+          </article>
         </div>
 
         <div class="oh-section">导入导出</div>
@@ -268,9 +279,30 @@ const cardImage = computed(() => getCardImage());
 const officialData = (presets[0]?.data ?? {}) as any;
 const officialProfile = computed(() => officialData?.角色?.['千鹤']?.档案 ?? {});
 const activeOfficial = computed(() => presets.find(item => item.id === selectedOfficial.value));
+const openingFull = computed(() => stripOpening(activeOfficial.value?.text ?? ''));
+
+function stripOpening(text: string) {
+  return text
+    .replace(/<initvar>[\s\S]*?<\/initvar>/g, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .trim();
+}
+
+function openingExcerpt(text: string) {
+  return stripOpening(text).replace(/\s+/g, ' ').slice(0, 92);
+}
 
 const saved = ref<CharacterPreset[]>([]);
 const drafts = computed(() => saved.value.filter(item => item.status === 'draft'));
+const filter = ref<'all' | 'draft' | 'ready'>('all');
+const filtered = computed(() =>
+  saved.value.filter(item => filter.value === 'all' || item.status === filter.value),
+);
+const filters = computed(() => [
+  { key: 'all' as const, label: '全部', count: saved.value.length },
+  { key: 'draft' as const, label: '草稿', count: drafts.value.length },
+  { key: 'ready' as const, label: '已完成', count: saved.value.length - drafts.value.length },
+]);
 
 const importInput = ref<HTMLInputElement | null>(null);
 const avatarInput = ref<HTMLInputElement | null>(null);
@@ -744,51 +776,37 @@ function scrollToPage(index: number) {
 }
 
 .oh-placeholder {
-  width: calc(100% - 56px);
-  height: calc(100% - 56px);
-  border: 1px solid var(--line);
+  width: auto;
+  height: auto;
+  border: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 8px;
   position: relative;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border-color: var(--line-2);
-    border-style: solid;
-  }
-
-  &::before {
-    left: -1px;
-    top: -1px;
-    border-width: 1px 0 0 1px;
-  }
-
-  &::after {
-    right: -1px;
-    bottom: -1px;
-    border-width: 0 1px 1px 0;
-  }
 
   b {
     font-family: Georgia, 'Songti SC', 'SimSun', serif;
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 500;
-    letter-spacing: 6px;
+    letter-spacing: 8px;
     color: var(--text);
   }
 
   small {
-    font-size: 9px;
+    font-size: 10px;
     letter-spacing: 2px;
     color: var(--muted);
   }
+}
+
+.oh-page.custom .oh-shade {
+  background: linear-gradient(to bottom, transparent 56%, rgba(20, 16, 12, 0.6) 100%);
+}
+
+.oh-page.manage .oh-shade {
+  background: linear-gradient(to bottom, transparent 58%, rgba(20, 16, 12, 0.55) 100%);
 }
 
 .oh-page.manage .oh-placeholder {
@@ -1304,6 +1322,118 @@ function scrollToPage(index: number) {
   gap: 5px;
 }
 
+.oh-lib-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.oh-filter {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+
+  i {
+    font-style: normal;
+    margin-left: 3px;
+    opacity: 0.7;
+  }
+
+  &.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+  }
+}
+
+.oh-lib-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.oh-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.oh-card-main {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.oh-card-cover {
+  height: 120px;
+  background: linear-gradient(135deg, var(--avatar-a), var(--avatar-b));
+  background-size: cover;
+  background-position: center top;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.oh-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 9px;
+
+  b {
+    font-size: 13px;
+  }
+
+  span {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  em {
+    font-style: normal;
+    font-size: 9.5px;
+    color: var(--accent);
+  }
+}
+
+.oh-card-actions {
+  display: flex;
+  border-top: 1px solid var(--line);
+
+  button {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 6px 0;
+    font-size: 9.5px;
+    font-family: inherit;
+    cursor: pointer;
+
+    & + button {
+      border-left: 1px solid var(--line);
+    }
+
+    &.danger {
+      color: var(--red);
+    }
+  }
+}
+
 .oh-lib {
   display: flex;
   flex-direction: column;
@@ -1375,19 +1505,470 @@ function scrollToPage(index: number) {
   }
 }
 
+/* ===== 整页翻页与放大版式 ===== */
+.oh-pager-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.oh-pager {
+  height: 100%;
+  padding: 0;
+  gap: 0;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+}
+
+.oh-page {
+  flex: 0 0 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.oh-cover {
+  height: 100%;
+  border-radius: 0;
+}
+
+.oh-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 32%, rgba(20, 16, 12, 0.74) 100%);
+  pointer-events: none;
+}
+
+.oh-page-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24px 22px calc(34px + env(safe-area-inset-bottom));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+
+  .oh-kicker {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  p {
+    margin: 0 0 10px;
+    max-width: 90%;
+    font-size: 13px;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.82);
+  }
+}
+
+.oh-btn.big {
+  padding: 11px 26px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+.oh-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+  width: 38px;
+  height: 66px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+
+  &.prev {
+    left: 0;
+    border-radius: 0 12px 12px 0;
+  }
+
+  &.next {
+    right: 0;
+    border-radius: 12px 0 0 12px;
+  }
+
+  &:disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.oh-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 9px;
+  z-index: 7;
+  padding: 0;
+}
+
+.oh-dot {
+  width: 7px;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.38);
+
+  &.active {
+    background: #fff;
+  }
+}
+
+/* 官方页 */
+.oh-official-hero {
+  position: relative;
+  flex-shrink: 0;
+  height: 246px;
+  background-color: var(--panel-2);
+  background-size: cover;
+  background-position: center 28%;
+}
+
+.oh-official-hero .oh-shade {
+  background: linear-gradient(to bottom, rgba(20, 16, 12, 0.32), transparent 32%);
+}
+
+.oh-official-title {
+  flex-shrink: 0;
+  padding: 12px 18px 0;
+
+  h2 {
+    display: inline-block;
+    margin: 0;
+    font-size: 30px;
+    letter-spacing: 1px;
+  }
+
+  span {
+    margin-left: 10px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+}
+
+.oh-official-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.oh-back.floating {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  z-index: 3;
+  background: rgba(255, 253, 247, 0.82);
+}
+
+.oh-tag.floating {
+  position: absolute;
+  right: 14px;
+  top: 16px;
+  z-index: 3;
+  background: rgba(255, 253, 247, 0.82);
+}
+
+.oh-official-name {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+  z-index: 3;
+
+  h2 {
+    margin: 0;
+    font-size: 30px;
+    letter-spacing: 1px;
+  }
+
+  span {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  p {
+    margin: 6px 0 0;
+    max-width: 92%;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+}
+
+.oh-story-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.oh-story-tab {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  padding: 9px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+
+  b {
+    font-size: 12.5px;
+    line-height: 1.3;
+  }
+
+  span {
+    font-size: 9px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  &.active {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+  }
+}
+
+.oh-dossier {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 0 12px 12px;
+
+  summary {
+    padding: 10px 0;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    list-style: none;
+
+    &::before {
+      content: '＋';
+      margin-right: 6px;
+      color: var(--accent);
+    }
+  }
+
+  &[open] summary::before {
+    content: '－';
+  }
+
+  .oh-official-desc {
+    margin-bottom: 8px;
+  }
+}
+
+.oh-reading p {
+  max-height: 320px;
+}
+
+.oh-sub-body {
+  padding: 14px 18px 18px;
+  gap: 12px;
+}
+
+.oh-rows div {
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.oh-rows span {
+  flex-basis: 34px;
+}
+
+.oh-section {
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.oh-story {
+  padding: 11px 12px;
+  gap: 3px;
+
+  b {
+    font-size: 14px;
+  }
+
+  span {
+    font-size: 11.5px;
+  }
+
+  em {
+    margin-top: 3px;
+    font-style: normal;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+}
+
+.oh-reading {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  overflow: hidden;
+
+  p {
+    margin: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    padding: 10px 12px 14px;
+    font-size: 12.5px;
+    line-height: 1.85;
+    white-space: pre-wrap;
+  }
+}
+
+.oh-reading-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-2);
+
+  span {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  b {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+}
+
+.oh-foot .oh-btn {
+  padding: 10px 22px;
+  font-size: 13px;
+}
+
+/* 自定义编辑器 */
+.oh-rail {
+  flex-basis: 92px;
+
+  button {
+    font-size: 11px;
+    padding: 9px 7px;
+  }
+}
+
+.oh-form {
+  padding: 14px;
+  gap: 10px;
+}
+
+.oh-field > span {
+  font-size: 10.5px;
+}
+
+.oh-field input,
+.oh-field textarea {
+  padding: 8px 9px;
+  font-size: 12px;
+}
+
+.oh-avatar {
+  width: 64px;
+  height: 78px;
+}
+
+.oh-sub-head b {
+  font-size: 16px;
+}
+
+.oh-save {
+  font-size: 10px;
+}
+
+.oh-hint {
+  font-size: 9.5px;
+}
+
+/* 角色库 */
+.oh-lib-item {
+  padding: 10px;
+  gap: 8px;
+}
+
+.oh-lib-avatar {
+  width: 42px;
+  height: 42px;
+  font-size: 15px;
+}
+
+.oh-lib-text b {
+  font-size: 13px;
+}
+
+.oh-lib-text span {
+  font-size: 10.5px;
+}
+
+.oh-mini {
+  padding: 5px 8px;
+  font-size: 10px;
+}
+
+.oh-empty {
+  font-size: 12px;
+  gap: 10px;
+}
+
+.oh-help p {
+  font-size: 10.5px;
+}
+
 @media (min-width: 720px) {
   .oh-pager {
     overflow: hidden;
-    padding: 10px 22px 0;
   }
 
   .oh-page {
     flex: 1 1 0;
     min-width: 0;
+    border-left: 1px solid var(--line);
+
+    &:first-child {
+      border-left: 0;
+    }
   }
 
-  .oh-dots {
+  .oh-nav {
     display: none;
+  }
+
+  .oh-page-caption {
+    padding: 18px;
+  }
+
+  .oh-page-caption h2 {
+    font-size: 22px;
   }
 }
 </style>
