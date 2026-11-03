@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>APP 图标 · 设计方案对比</title>
+<style>
+/* ============================================================
+   高岭之花 · APP 图标设计方案对比（概念渲染）
+   同一套 8 个应用图标 × 4 种设计形态：
+   方案A 柔线白底 / 方案B 彩底白线 / 方案C 圆润拟物 / 方案D 极简卡片
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f1e8; --bg-2: #efe9dd;
+  --panel: #fffdf7; --panel-2: #f3eee3;
+  --line: #e7dfd0; --line-2: #d3c6b0;
+  --accent: #cf8f97; --accent-dim: rgba(207,143,151,.13);
+  --green: #8fbe9c; --blue: #8fb2d6;
+  --red: #df8b8b; --amber: #d9ab6b; --purple: #b394cf;
+  --text: #433d33; --muted: #a29483;
+  --radius: 20px;
+  --shadow: 0 20px 48px -20px rgba(120,90,60,.38);
+  --font-ui: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font-ui); padding: 40px 24px 64px; }
+.page-head { max-width: 1180px; margin: 0 auto 12px; }
+.page-head h1 { font-size: 26px; letter-spacing: 1px; }
+.page-head p { color: var(--muted); font-size: 13px; margin-top: 8px; line-height: 1.8; }
+.page-head .note { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--accent); background: var(--accent-dim); padding: 4px 12px; border-radius: 999px; }
+.wrap { max-width: 1180px; margin: 30px auto 0; display: flex; flex-direction: column; gap: 34px; }
+
+/* ---------- 方案块 ---------- */
+.set { background: var(--panel); border: 1px solid var(--line); border-radius: 24px; padding: 22px 26px 24px; box-shadow: 0 14px 34px -22px rgba(120,90,60,.3); }
+.set .meta { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+.set .tag { font-size: 12px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 999px; padding: 3px 12px; }
+.set h3 { font-size: 16px; }
+.set .desc { font-size: 12px; color: var(--muted); margin: 4px 0 18px; line-height: 1.7; }
+.set .desc b { color: var(--text); font-weight: 600; }
+.icons { display: flex; gap: 18px; flex-wrap: wrap; }
+.app { display: flex; flex-direction: column; align-items: center; gap: 7px; width: 92px; }
+.app .lbl { font-size: 11px; color: var(--text); font-weight: 600; }
+
+/* ---------- 通用图标框尺寸 ---------- */
+.ic { width: 68px; height: 68px; display: flex; align-items: center; justify-content: center; }
+.ic svg { width: 34px; height: 34px; }
+
+/* ---------- 方案A · 柔线白底：白底+细边框+粉线性 ---------- */
+.set-a .ic { background: #fff; border: 1px solid var(--line); border-radius: 20%; box-shadow: 0 6px 14px -8px rgba(120,90,60,.25); }
+.set-a .ic svg { stroke: var(--accent); stroke-width: 1.6; }
+
+/* ---------- 方案B · 彩底白线：柔和渐变底+白色线形 ---------- */
+.set-b .ic { border-radius: 24%; box-shadow: 0 8px 18px -10px rgba(120,90,60,.35); }
+.set-b .ic svg { stroke: #fff; stroke-width: 1.9; }
+.set-b .i0 { background: linear-gradient(145deg, #a8d3b2, #7fae8c); }
+.set-b .i1 { background: linear-gradient(145deg, #a7c8e4, #7fa5c9); }
+.set-b .i2 { background: linear-gradient(145deg, #c6b3da, #a58ac2); }
+.set-b .i3 { background: linear-gradient(145deg, #e2b3ba, #cf8f97); }
+.set-b .i4 { background: linear-gradient(145deg, #e4c194, #d9ab6b); }
+.set-b .i5 { background: linear-gradient(145deg, #9fc0e2, #77a3cd); }
+.set-b .i6 { background: linear-gradient(145deg, #e2b3ba, #cf8f97); }
+.set-b .i7 { background: linear-gradient(145deg, #a8d3b2, #7fae8c); }
+
+/* ---------- 方案C · 圆润拟物：圆形浅底+内高光+双色描边 ---------- */
+.set-c .ic { border-radius: 50%; background: linear-gradient(160deg, #fdfbf6, #f2ece0); box-shadow: inset 0 2px 4px rgba(255,255,255,.9), inset 0 -4px 8px rgba(150,120,80,.14), 0 8px 18px -10px rgba(120,90,60,.3); }
+.set-c .ic svg { stroke: var(--text); stroke-width: 1.5; }
+.set-c .ic svg .fill { fill: var(--accent); stroke: none; }
+.set-c .ic svg .fill2 { fill: var(--green); stroke: none; }
+.set-c .ic svg .fill3 { fill: var(--blue); stroke: none; }
+.set-c .ic svg .fill4 { fill: var(--amber); stroke: none; }
+
+/* ---------- 方案D · 极简卡片：白底+彩色细描边+角标点 ---------- */
+.set-d .ic { background: #fff; border-radius: 26%; position: relative; box-shadow: 0 6px 14px -8px rgba(120,90,60,.2); }
+.set-d .ic { border: 1.6px solid var(--accent); }
+.set-d .ic svg { stroke: var(--text); stroke-width: 1.2; }
+.set-d .ic::after { content: ""; position: absolute; top: 9px; right: 9px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.set-d .i1 { border-color: var(--blue); } .set-d .i1::after { background: var(--blue); }
+.set-d .i2 { border-color: var(--purple); } .set-d .i2::after { background: var(--purple); }
+.set-d .i3 { border-color: var(--green); } .set-d .i3::after { background: var(--green); }
+.set-d .i4 { border-color: var(--amber); } .set-d .i4::after { background: var(--amber); }
+.set-d .i5 { border-color: var(--blue); } .set-d .i5::after { background: var(--blue); }
+.set-d .i6 { border-color: var(--accent); } .set-d .i6::after { background: var(--accent); }
+.set-d .i7 { border-color: var(--green); } .set-d .i7::after { background: var(--green); }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>APP 图标 · 设计方案对比（概念渲染）</h1>
+  <p>同一套 8 个应用图标（状态 / 认知 / 记忆 / 躯体 / 指令 / 系统 / 设置 / 对话），按 4 种<b>设计形态</b>各做一整组，方便对比选择。<br>
+  差异在形状、填充方式与视觉语言（线形 / 彩底 / 拟物 / 极简卡片），配色仍沿用现有美化体系。</p>
+  <span class="note">说明：概念渲染，仅示意图标设计方向，可整组采用或混搭</span>
+</div>
+
+<div class="wrap">
+
+  <!-- ========== 方案 A · 柔线白底 ========== -->
+  <div class="set set-a">
+    <div class="meta"><span class="tag">方案 A</span><h3>柔线白底</h3></div>
+    <p class="desc"><b>延续现有美化</b>：白色圆角方底 + 细描边 + 蔷薇粉线性图标。<br>温和、干净、与当前界面语言完全同源，是"最小改动"方案。</p>
+    <div class="icons">
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,14 8,14 10,8 13,17 15,11 21,11"/></svg></div><span class="lbl">状态</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="11" r="4"/><path d="M12 3v3M12 19v3M3 11h3M18 11h3M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M18.4 5.6l-2.2 2.2M7.8 16.2l-2.2 2.2"/></svg></div><span class="lbl">认知</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M4 4h5a3 3 0 0 1 3 2 3 3 0 0 1 3-2h5v14h-5a3 3 0 0 0-3 2 3 3 0 0 0-3-2H4z"/><path d="M12 6v12"/></svg></div><span class="lbl">记忆</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg></div><span class="lbl">躯体</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div><span class="lbl">指令</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></div><span class="lbl">系统</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M8 12h1M15 12h1M12 8v1M12 15v1"/></svg></div><span class="lbl">设置</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l3-3a8 8 0 1 1 13-5z"/></svg></div><span class="lbl">对话</span></div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 B · 彩底白线 ========== -->
+  <div class="set set-b">
+    <div class="meta"><span class="tag">方案 B</span><h3>彩底白线</h3></div>
+    <p class="desc"><b>现代应用图标风</b>：柔和渐变底色 + 白色线性图标，每个功能一个专属色彩。<br>识别度高、更像"正式 APP"，粉色作为躯体/设置主色保留。</p>
+    <div class="icons">
+      <div class="app"><div class="ic i0"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,14 8,14 10,8 13,17 15,11 21,11"/></svg></div><span class="lbl">状态</span></div>
+      <div class="app"><div class="ic i1"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="11" r="4"/><path d="M12 3v3M12 19v3M3 11h3M18 11h3M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M18.4 5.6l-2.2 2.2M7.8 16.2l-2.2 2.2"/></svg></div><span class="lbl">认知</span></div>
+      <div class="app"><div class="ic i2"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M4 4h5a3 3 0 0 1 3 2 3 3 0 0 1 3-2h5v14h-5a3 3 0 0 0-3 2 3 3 0 0 0-3-2H4z"/><path d="M12 6v12"/></svg></div><span class="lbl">记忆</span></div>
+      <div class="app"><div class="ic i3"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg></div><span class="lbl">躯体</span></div>
+      <div class="app"><div class="ic i4"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div><span class="lbl">指令</span></div>
+      <div class="app"><div class="ic i5"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></div><span class="lbl">系统</span></div>
+      <div class="app"><div class="ic i6"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M8 12h1M15 12h1M12 8v1M12 15v1"/></svg></div><span class="lbl">设置</span></div>
+      <div class="app"><div class="ic i7"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l3-3a8 8 0 1 1 13-5z"/></svg></div><span class="lbl">对话</span></div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 C · 圆润拟物 ========== -->
+  <div class="set set-c">
+    <div class="meta"><span class="tag">方案 C</span><h3>圆润拟物</h3></div>
+    <p class="desc"><b>温暖拟物感</b>：圆形浅米底 + 内高光 + 深色主图标，部分元素填入主题色。<br>圆润柔和、有"实体按键"的亲切感，弱化工具属性。</p>
+    <div class="icons">
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,14 8,14 10,8 13,17 15,11 21,11"/></svg></div><span class="lbl">状态</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle class="fill3" cx="12" cy="11" r="4"/><path d="M12 3v3M12 19v3M3 11h3M18 11h3M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M18.4 5.6l-2.2 2.2M7.8 16.2l-2.2 2.2"/></svg></div><span class="lbl">认知</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M4 4h5a3 3 0 0 1 3 2 3 3 0 0 1 3-2h5v14h-5a3 3 0 0 0-3 2 3 3 0 0 0-3-2H4z"/><path class="fill" d="M12 6v12"/></svg></div><span class="lbl">记忆</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle class="fill" cx="12" cy="5" r="2.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg></div><span class="lbl">躯体</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div><span class="lbl">指令</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle class="fill2" cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></div><span class="lbl">系统</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle class="fill4" cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M8 12h1M15 12h1M12 8v1M12 15v1"/></svg></div><span class="lbl">设置</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l3-3a8 8 0 1 1 13-5z"/></svg></div><span class="lbl">对话</span></div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 D · 极简卡片 ========== -->
+  <div class="set set-d">
+    <div class="meta"><span class="tag">方案 D</span><h3>极简卡片</h3></div>
+    <p class="desc"><b>轻巧极简</b>：白底圆角卡 + 彩色细描边 + 右上角彩色状态点。<br>线条最细、留白最多，各功能以色彩区分，冷静克制。</p>
+    <div class="icons">
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,14 8,14 10,8 13,17 15,11 21,11"/></svg></div><span class="lbl">状态</span></div>
+      <div class="app"><div class="ic i1"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="11" r="4"/><path d="M12 3v3M12 19v3M3 11h3M18 11h3M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M18.4 5.6l-2.2 2.2M7.8 16.2l-2.2 2.2"/></svg></div><span class="lbl">认知</span></div>
+      <div class="app"><div class="ic i2"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M4 4h5a3 3 0 0 1 3 2 3 3 0 0 1 3-2h5v14h-5a3 3 0 0 0-3 2 3 3 0 0 0-3-2H4z"/><path d="M12 6v12"/></svg></div><span class="lbl">记忆</span></div>
+      <div class="app"><div class="ic i3"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg></div><span class="lbl">躯体</span></div>
+      <div class="app"><div class="ic i4"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div><span class="lbl">指令</span></div>
+      <div class="app"><div class="ic i5"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></div><span class="lbl">系统</span></div>
+      <div class="app"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M8 12h1M15 12h1M12 8v1M12 15v1"/></svg></div><span class="lbl">设置</span></div>
+      <div class="app"><div class="ic i7"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l3-3a8 8 0 1 1 13-5z"/></svg></div><span class="lbl">对话</span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

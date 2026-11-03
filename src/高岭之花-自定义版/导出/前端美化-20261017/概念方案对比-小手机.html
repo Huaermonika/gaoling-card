@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>小手机 · 设计方案对比（概念渲染）</title>
+<style>
+/* ============================================================
+   高岭之花 · 「小手机」设计布局方案对比页
+   配色统一沿用现有美化（校园柔风），差异在设计布局与信息架构
+   方案一 · 桌面网格 / 方案二 · 卡片信息流 / 方案三 · 仪表盘网格 / 方案四 · 对话式终端
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f1e8; --bg-2: #efe9dd;
+  --panel: #fffdf7; --panel-2: #f3eee3;
+  --line: #e7dfd0; --line-2: #d3c6b0;
+  --accent: #cf8f97; --accent-dim: rgba(207,143,151,.13);
+  --green: #8fbe9c; --blue: #8fb2d6;
+  --red: #df8b8b; --amber: #d9ab6b; --purple: #b394cf;
+  --text: #433d33; --muted: #a29483;
+  --radius: 20px;
+  --shadow: 0 20px 48px -20px rgba(120,90,60,.38);
+  --font-ui: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font-ui); padding: 40px 24px 64px; }
+.page-head { max-width: 1500px; margin: 0 auto 14px; }
+.page-head h1 { font-size: 26px; letter-spacing: 1px; }
+.page-head p { color: var(--muted); font-size: 13px; margin-top: 8px; line-height: 1.8; }
+.page-head .note { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--accent); background: var(--accent-dim); padding: 4px 12px; border-radius: 999px; }
+.cmp { display: flex; flex-wrap: wrap; gap: 28px; max-width: 1500px; margin: 26px auto 0; }
+
+/* ---------- 方案卡 ---------- */
+.plan { flex: 1 1 300px; max-width: 360px; min-width: 280px; }
+.plan .meta { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.plan .tag { font-size: 12px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 999px; padding: 3px 10px; }
+.plan h3 { font-size: 15px; }
+.plan .desc { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.7; }
+.plan .desc b { color: var(--text); font-weight: 600; }
+
+/* ---------- 小手机机身（完整手机形态：金属边框 + 屏幕 + 听筒摄像头） ---------- */
+.phone {
+  width: 300px; height: 632px; margin-top: 10px;
+  border-radius: 46px;
+  background: linear-gradient(155deg, #f6f1e6 0%, #e6ddca 55%, #d8ccb4 100%);
+  border: 1px solid #cfc2a8;
+  box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.65), inset -6px -8px 16px rgba(140,110,70,.18), inset 6px 8px 16px rgba(255,255,255,.5);
+  padding: 13px;
+  position: relative;
+}
+.phone::before { /* 机身顶部听筒 */
+  content: ""; position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+  width: 74px; height: 5px; border-radius: 999px; background: #b3a489;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.35);
+  z-index: 3;
+}
+.phone::after { /* 前置摄像头 */
+  content: ""; position: absolute; top: 9px; right: 34px;
+  width: 7px; height: 7px; border-radius: 50%; background: #2a2430;
+  box-shadow: inset 0 0 2px rgba(0,0,0,.6), 0 0 0 2px rgba(255,255,255,.35);
+  z-index: 3;
+}
+.phone .sbump { /* 机身侧面按键示意 */
+  position: absolute; top: 128px; left: -2px; width: 3px; height: 26px;
+  background: linear-gradient(90deg, #b9ac91, #d9cdb4); border-radius: 2px 0 0 2px;
+}
+.phone .sbump2 { position: absolute; top: 170px; left: -2px; width: 3px; height: 42px; background: linear-gradient(90deg, #b9ac91, #d9cdb4); border-radius: 2px 0 0 2px; }
+.phone .sbump3 { position: absolute; top: 150px; right: -2px; width: 3px; height: 50px; background: linear-gradient(270deg, #b9ac91, #d9cdb4); border-radius: 0 2px 2px 0; }
+.screen {
+  width: 100%; height: 100%; border-radius: 36px; overflow: hidden;
+  background: var(--bg); display: flex; flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(140,110,70,.25), inset 0 0 0 1px rgba(255,255,255,.4);
+}
+.phone .screen > * { flex-shrink: 0; }
+
+/* ---------- 通用小件 ---------- */
+.statusbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px 4px; font-size: 10px; color: var(--text); font-weight: 600;
+}
+.statusbar .center { display: flex; align-items: center; gap: 4px; color: var(--green); font-size: 9px; }
+.statusbar .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+.statusbar .batt { display: flex; align-items: center; gap: 3px; }
+.statusbar .batt i { width: 16px; height: 8px; border: 1px solid var(--text); border-radius: 2px; position: relative; }
+.statusbar .batt i::after { content:""; position:absolute; inset:1px 4px 1px 1px; background: var(--green); border-radius: 1px; }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 700; color: #fff; background: var(--accent); padding: 2px 8px; border-radius: 999px; }
+.badge.g { background: var(--green); }
+.avatar { border-radius: 50%; background: linear-gradient(150deg, #f3cdd3, #e5b3bc); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+/* ============================================================
+   方案一 · 桌面网格 —— 手机桌面隐喻：功能是"应用"，主屏只是入口
+   ============================================================ */
+.p1 .screen { background: var(--bg); }
+.p1 .home {
+  flex: 1; padding: 12px 14px; display: flex; flex-direction: column; gap: 12px;
+  overflow: hidden;
+}
+.p1 .widget {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 12px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 20px -12px rgba(120,90,60,.25);
+}
+.p1 .widget .avatar { width: 40px; height: 40px; font-size: 15px; }
+.p1 .widget .nm { font-size: 12px; font-weight: 700; }
+.p1 .widget .sb { font-size: 9px; color: var(--muted); font-family: var(--font-mono); margin-top: 1px; }
+.p1 .widget .badge { margin-left: auto; }
+.p1 .grid {
+  flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 6px; align-content: start;
+  padding-top: 6px;
+}
+.p1 .app { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.p1 .app .ico {
+  width: 44px; height: 44px; border-radius: 14px; background: var(--panel);
+  border: 1px solid var(--line); display: flex; align-items: center; justify-content: center;
+}
+.p1 .app .ico svg { width: 20px; height: 20px; stroke: var(--accent); }
+.p1 .app span { font-size: 9px; color: var(--text); }
+.p1 .dock {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+  padding: 10px 14px; margin: 0 14px 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.p1 .dock .di { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; }
+.p1 .dock .di svg { width: 16px; height: 16px; stroke: var(--accent); }
+.p1 .homebar { width: 70px; height: 3px; border-radius: 99px; background: var(--line-2); }
+
+/* ============================================================
+   方案二 · 卡片信息流 —— 主屏即内容：一屏看全全部状态
+   ============================================================ */
+.p2 .screen { background: var(--bg-2); }
+.p2 .topbar {
+  display: flex; align-items: center; gap: 9px; padding: 10px 14px 8px;
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.p2 .topbar .avatar { width: 30px; height: 30px; font-size: 12px; }
+.p2 .topbar .nm { font-size: 12px; font-weight: 700; }
+.p2 .topbar .sb { font-size: 9px; color: var(--muted); font-family: var(--font-mono); }
+.p2 .topbar .badge { margin-left: auto; }
+.p2 .feed { flex: 1; overflow: hidden; padding: 12px 12px 8px; display: flex; flex-direction: column; gap: 10px; }
+.p2 .card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px;
+}
+.p2 .card .hd { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; margin-bottom: 6px; }
+.p2 .card .hd svg { width: 13px; height: 13px; stroke: var(--accent); }
+.p2 .card .hd .r { margin-left: auto; color: var(--muted); font-weight: 400; }
+.p2 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.p2 .st { background: var(--panel-2); border-radius: 10px; padding: 6px 8px; text-align: center; }
+.p2 .st .v { font-size: 13px; font-weight: 700; color: var(--accent); font-family: var(--font-mono); }
+.p2 .st .k { font-size: 8px; color: var(--muted); margin-top: 1px; }
+.p2 .lv { display: flex; align-items: center; gap: 6px; font-size: 9px; color: var(--muted); }
+.p2 .lv i { width: 20px; height: 5px; border-radius: 99px; background: var(--green); }
+.p2 .mem .row { display: flex; gap: 8px; align-items: flex-start; font-size: 9px; color: var(--muted); padding: 3px 0; }
+.p2 .mem .row b { color: var(--text); font-weight: 600; }
+.p2 .cmdrow { display: flex; gap: 6px; font-size: 9px; color: var(--text); align-items: center; }
+.p2 .cmdrow .chk { width: 11px; height: 11px; border: 1px solid var(--line-2); border-radius: 4px; }
+.p2 .cmdrow.done .chk { background: var(--green); border-color: var(--green); }
+.p2 .cmdrow.done { color: var(--muted); }
+.p2 .pillbar {
+  display: flex; gap: 6px; overflow-x: auto; padding: 2px 12px 12px; scrollbar-width: none;
+}
+.p2 .pillbar::-webkit-scrollbar { display: none; }
+.p2 .pill {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 5px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 10px; font-size: 9px; font-weight: 600;
+}
+.p2 .pill svg { width: 12px; height: 12px; stroke: var(--accent); }
+.p2 .pill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.p2 .pill.on svg { stroke: #fff; }
+
+/* ============================================================
+   方案三 · 仪表盘网格 —— 监控台：每个功能卡=实时数值+入口
+   ============================================================ */
+.p3 .screen { background: var(--bg); }
+.p3 .titlebar { display: flex; align-items: center; padding: 8px 16px 2px; }
+.p3 .titlebar h4 { font-size: 12px; letter-spacing: 2px; }
+.p3 .titlebar .badge { margin-left: auto; }
+.p3 .hero {
+  margin: 8px 14px 6px; background: linear-gradient(140deg, #f7ebe6, #f3e0e0);
+  border-radius: 18px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--line);
+}
+.p3 .hero .avatar { width: 36px; height: 36px; font-size: 14px; }
+.p3 .hero .nm { font-size: 12px; font-weight: 700; }
+.p3 .hero .sb { font-size: 8px; color: var(--muted); font-family: var(--font-mono); margin-top: 1px; }
+.p3 .hero .status { margin-left: auto; text-align: right; }
+.p3 .hero .status .v { font-size: 10px; font-weight: 700; color: var(--green); }
+.p3 .hero .status .k { font-size: 8px; color: var(--muted); }
+.p3 .dash {
+  flex: 1; overflow: hidden; padding: 8px 14px 6px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start;
+}
+.p3 .dcell {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+  padding: 10px; display: flex; flex-direction: column; gap: 5px;
+}
+.p3 .dcell .ic { width: 24px; height: 24px; border-radius: 9px; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; }
+.p3 .dcell .ic svg { width: 13px; height: 13px; stroke: var(--accent); }
+.p3 .dcell .nm2 { font-size: 9px; color: var(--muted); }
+.p3 .dcell .val { font-size: 14px; font-weight: 700; font-family: var(--font-mono); }
+.p3 .dcell .val small { font-size: 9px; color: var(--muted); font-family: var(--font-ui); font-weight: 400; margin-left: 2px; }
+.p3 .dcell.g .ic svg { stroke: var(--green); }
+.p3 .dcell.g .val { color: var(--green); }
+.p3 .dcell.b .ic svg { stroke: var(--blue); }
+.p3 .dcell.b .val { color: var(--blue); }
+.p3 .dcell.a .ic svg { stroke: var(--amber); }
+.p3 .dcell.a .val { color: var(--amber); }
+.p3 .dcell .bar { height: 4px; border-radius: 99px; background: var(--panel-2); overflow: hidden; }
+.p3 .dcell .bar i { display: block; height: 100%; border-radius: 99px; background: var(--green); }
+.p3 .tabbar {
+  display: flex; margin: 2px 14px 14px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 16px; padding: 6px;
+}
+.p3 .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 8px; color: var(--muted); }
+.p3 .tab svg { width: 14px; height: 14px; stroke: var(--muted); }
+.p3 .tab.on { color: var(--accent); }
+.p3 .tab.on svg { stroke: var(--accent); }
+
+/* ============================================================
+   方案四 · 对话式终端 —— 交互以对话为中心，功能靠对话触发
+   ============================================================ */
+.p4 .screen { background: var(--bg-2); }
+.p4 .topbar {
+  display: flex; align-items: center; gap: 9px; padding: 10px 14px 8px;
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.p4 .topbar .avatar { width: 30px; height: 30px; font-size: 12px; }
+.p4 .topbar .nm { font-size: 12px; font-weight: 700; }
+.p4 .topbar .sb { font-size: 9px; color: var(--muted); font-family: var(--font-mono); }
+.p4 .topbar .badge.g { margin-left: auto; }
+.p4 .chat { flex: 1; overflow: hidden; padding: 12px 12px 6px; display: flex; flex-direction: column; gap: 10px; }
+.p4 .msg { max-width: 82%; font-size: 10px; line-height: 1.6; padding: 8px 11px; }
+.p4 .msg.ai { background: var(--panel); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; color: var(--text); align-self: flex-start; }
+.p4 .msg.ai .who { display: flex; align-items: center; gap: 5px; font-size: 8px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+.p4 .msg.ai .who .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+.p4 .msg.user { background: var(--accent); color: #fff; border-radius: 14px 4px 14px 14px; align-self: flex-end; }
+.p4 .msgcard {
+  align-self: flex-start; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 14px; padding: 8px 10px; max-width: 86%;
+}
+.p4 .msgcard .hd { font-size: 9px; font-weight: 700; display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+.p4 .msgcard .hd svg { width: 12px; height: 12px; stroke: var(--accent); }
+.p4 .msgcard .rows { display: flex; flex-direction: column; gap: 3px; font-size: 9px; color: var(--muted); }
+.p4 .msgcard .rows b { color: var(--text); font-weight: 600; }
+.p4 .quick { display: flex; gap: 6px; padding: 0 12px; }
+.p4 .quick .q { font-size: 9px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; color: var(--text); }
+.p4 .inputbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px 12px; }
+.p4 .inputbar .in { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; font-size: 10px; color: var(--muted); }
+.p4 .inputbar .send { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; }
+.p4 .inputbar .send svg { width: 12px; height: 12px; stroke: #fff; }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>「小手机」· 设计布局方案对比（概念渲染）</h1>
+  <p>四个方案的配色与质感完全相同（沿用现有美化：校园柔风 · 米白 / 蔷薇粉 / 圆角卡片），差异只在<b>设计布局与信息架构</b>。<br>
+  每个方案渲染在<b>完整小手机形态</b>上（金属机身 + 听筒 + 屏幕），展示"小手机 + APP"的整体观感。<br>
+  方案一·桌面网格＝手机桌面隐喻；方案二·卡片信息流＝主屏即内容；方案三·仪表盘网格＝监控台；方案四·对话式终端＝以对话为中心。</p>
+  <span class="note">说明：此为概念渲染，仅示意布局结构，不绑定最终细节</span>
+</div>
+
+<div class="cmp">
+
+  <!-- ================= 方案一 · 桌面网格 ================= -->
+  <div class="plan p1">
+    <div class="meta"><span class="tag">方案一</span><h3>桌面网格</h3></div>
+    <p class="desc">手机<b>桌面隐喻</b>：顶部角色小组件卡 + 8 个"应用"图标 + 底部 Dock。<br>功能是独立应用，点开才进入内容——与手机使用习惯一致。</p>
+    <div class="phone"><i class="sbump"></i><i class="sbump2"></i><i class="sbump3"></i><div class="screen">
+      <div class="statusbar">
+        <span>08:40</span><span class="center"><i class="dot"></i>正在运行</span><span class="batt">92%<i></i></span>
+      </div>
+      <div class="home">
+        <div class="widget">
+          <div class="avatar">千</div>
+          <div><div class="nm">白峰千鹤</div><div class="sb">AN-0170A · 控制终端</div></div>
+          <span class="badge">运行中</span>
+        </div>
+        <div class="grid">
+          <div class="app"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><polyline points="3,14 8,14 10,8 13,17 15,11 21,11"/></svg></div><span>状态</span></div>
+          <div class="app"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="11" r="4"/><path d="M12 3v3M12 19v3M3 11h3M18 11h3M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M18.4 5.6l-2.2 2.2M7.8 16.2l-2.2 2.2"/></svg></div><span>认知</span></div>
+          <div class="app"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h5a3 3 0 0 1 3 2 3 3 0 0 1 3-2h5v14h-5a3 3 0 0 0-3 2 3 3 0 0 0-3-2H4z"/><path d="M12 6v12"/></svg></div><span>记忆</span></div>
+          <div class="app"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg></div><span>躯体</span></div>
+          <div class="app"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div><span>指令</span></div>
+          <div class="app"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></div><span>系统</span></div>
+          <div class="app"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M8 12h1M15 12h1M12 8v1M12 15v1"/></svg></div><span>设置</span></div>
+          <div class="app"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l3-3a8 8 0 1 1 13-5z"/></svg></div><span>对话</span></div>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="di"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l3-3a8 8 0 1 1 13-5z"/></svg>对话</div>
+        <div class="homebar"></div>
+        <div class="di"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M8 12h1M15 12h1M12 8v1M12 15v1"/></svg>设置</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ================= 方案二 · 卡片信息流 ================= -->
+  <div class="plan p2">
+    <div class="meta"><span class="tag">方案二</span><h3>卡片信息流</h3></div>
+    <p class="desc"><b>主屏即内容</b>：顶栏角色条 + 纵向信息卡流（状态→记忆→指令→躯体），底部横向功能胶囊。<br>打开即看全，不需要"进应用"。</p>
+    <div class="phone"><i class="sbump"></i><i class="sbump2"></i><i class="sbump3"></i><div class="screen">
+      <div class="statusbar">
+        <span>08:40</span><span class="center"><i class="dot"></i>正在运行</span><span class="batt">92%<i></i></span>
+      </div>
+      <div class="topbar">
+        <div class="avatar">千</div>
+        <div><div class="nm">白峰千鹤</div><div class="sb">AN-0170A · 控制终端</div></div>
+        <span class="badge">运行中</span>
+      </div>
+      <div class="feed">
+        <div class="card">
+          <div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><polyline points="3,14 8,14 10,8 13,17 15,11 21,11"/></svg>状态总览 <span class="r">机体 · 完好</span></div>
+          <div class="stats">
+            <div class="st"><div class="v">72%</div><div class="k">液位</div></div>
+            <div class="st"><div class="v">36.4℃</div><div class="k">体温</div></div>
+            <div class="st"><div class="v">92%</div><div class="k">电量</div></div>
+          </div>
+        </div>
+        <div class="card mem">
+          <div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h5a3 3 0 0 1 3 2 3 3 0 0 1 3-2h5v14h-5a3 3 0 0 0-3 2 3 3 0 0 0-3-2H4z"/><path d="M12 6v12"/></svg>最近记忆 <span class="r">共 128 条</span></div>
+          <div class="row"><b>10:02</b> · 与千鹤讨论樱花开落的话题</div>
+          <div class="row"><b>09:47</b> · 记录今天的心情：平静而温暖</div>
+        </div>
+        <div class="card">
+          <div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>待办指令 <span class="r">3 条</span></div>
+          <div class="cmdrow done"><span class="chk"></span>晚间记得提醒千鹤补充液位</div>
+          <div class="cmdrow"><span class="chk"></span>整理今日对话纪要</div>
+          <div class="cmdrow"><span class="chk"></span>躯体检视：L2 待巡检</div>
+        </div>
+      </div>
+      <div class="pillbar">
+        <span class="pill on"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><polyline points="3,14 8,14 10,8 13,17 15,11 21,11"/></svg>状态</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="11" r="4"/><path d="M12 3v3M12 19v3M3 11h3M18 11h3"/></svg>认知</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h5a3 3 0 0 1 3 2 3 3 0 0 1 3-2h5v14h-5a3 3 0 0 0-3 2 3 3 0 0 0-3-2H4z"/></svg>记忆</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg>躯体</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>指令</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>系统</span>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ================= 方案三 · 仪表盘网格 ================= -->
+  <div class="plan p3">
+    <div class="meta"><span class="tag">方案三</span><h3>仪表盘网格</h3></div>
+    <p class="desc"><b>监控台</b>：角色信息横条 + 2×3 功能大卡（图标 + 实时数值 + 状态），底部 5 个 Tab 切换。<br>每个功能卡都是"入口 + 当前状态"一体。</p>
+    <div class="phone"><i class="sbump"></i><i class="sbump2"></i><i class="sbump3"></i><div class="screen">
+      <div class="statusbar">
+        <span>08:40</span><span class="center"><i class="dot"></i>正在运行</span><span class="batt">92%<i></i></span>
+      </div>
+      <div class="titlebar"><h4>控制终端</h4><span class="badge g">在线</span></div>
+      <div class="hero">
+        <div class="avatar">千</div>
+        <div><div class="nm">白峰千鹤</div><div class="sb">AN-0170A · 高岭之花</div></div>
+        <div class="status"><div class="v">机体完好</div><div class="k">躯体锁定 L1</div></div>
+      </div>
+      <div class="dash">
+        <div class="dcell g">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><polyline points="3,14 8,14 10,8 13,17 15,11 21,11"/></svg></div>
+          <div class="nm2">状态</div><div class="val">完好<small>机体</small></div>
+        </div>
+        <div class="dcell b">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="11" r="4"/><path d="M12 3v3M12 19v3M3 11h3M18 11h3"/></svg></div>
+          <div class="nm2">认知</div><div class="val">78%<small>浓度</small></div>
+        </div>
+        <div class="dcell">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h5a3 3 0 0 1 3 2 3 3 0 0 1 3-2h5v14h-5a3 3 0 0 0-3 2 3 3 0 0 0-3-2H4z"/></svg></div>
+          <div class="nm2">记忆</div><div class="val">128<small>条</small></div>
+        </div>
+        <div class="dcell g">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg></div>
+          <div class="nm2">躯体</div><div class="val">L1<small>锁定</small></div>
+        </div>
+        <div class="dcell a">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+          <div class="nm2">指令</div><div class="val">3<small>待办</small></div>
+        </div>
+        <div class="dcell g">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>
+          <div class="nm2">系统</div><div class="val">在线<small>网络</small></div>
+          <div class="bar"><i style="width:72%"></i></div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <span class="tab on"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><polyline points="3,14 8,14 10,8 13,17 15,11 21,11"/></svg>状态</span>
+        <span class="tab"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="11" r="4"/><path d="M12 3v3M12 19v3M3 11h3M18 11h3"/></svg>认知</span>
+        <span class="tab"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h5a3 3 0 0 1 3 2 3 3 0 0 1 3-2h5v14h-5a3 3 0 0 0-3 2 3 3 0 0 0-3-2H4z"/></svg>记忆</span>
+        <span class="tab"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg>躯体</span>
+        <span class="tab"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>指令</span>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ================= 方案四 · 对话式终端 ================= -->
+  <div class="plan p4">
+    <div class="meta"><span class="tag">方案四</span><h3>对话式终端</h3></div>
+    <p class="desc"><b>以对话为中心</b>：角色对话流 + 快捷指令胶囊 + 底部输入框。<br>一切功能通过对话触发，终端更像"会说话的伴侣"。</p>
+    <div class="phone"><i class="sbump"></i><i class="sbump2"></i><i class="sbump3"></i><div class="screen">
+      <div class="statusbar">
+        <span>08:40</span><span class="center"><i class="dot"></i>正在运行</span><span class="batt">92%<i></i></span>
+      </div>
+      <div class="topbar">
+        <div class="avatar">千</div>
+        <div><div class="nm">白峰千鹤</div><div class="sb">AN-0170A · 控制终端</div></div>
+        <span class="badge g">在线</span>
+      </div>
+      <div class="chat">
+        <div class="msg ai"><div class="who"><span class="dot"></span>白峰千鹤</div>欢迎回来。今天想从哪里开始？</div>
+        <div class="msg user">查看躯体状态</div>
+        <div class="msgcard">
+          <div class="hd"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg>躯体检视</div>
+          <div class="rows"><span>L1 完好 · L2 待巡检 · L3 完好</span><span>液位 72% · 体温 36.4℃</span></div>
+        </div>
+        <div class="msg ai"><div class="who"><span class="dot"></span>白峰千鹤</div>机体状态良好，液位偏低，需要补充吗？</div>
+      </div>
+      <div class="quick">
+        <span class="q">状态</span><span class="q">记忆</span><span class="q">指令</span>
+      </div>
+      <div class="inputbar">
+        <div class="in">说点什么……</div>
+        <div class="send"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M4 12h14M13 6l6 6-6 6"/></svg></div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+</body>
+</html>

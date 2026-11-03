@@ -1,0 +1,481 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "世界": {
+      "type": "object",
+      "properties": {
+        "当前时间": {
+          "type": "string"
+        },
+        "当前地点": {
+          "type": "string"
+        },
+        "近期事务": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "事务名"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "description": "事务描述"
+          }
+        }
+      },
+      "required": [
+        "当前时间",
+        "当前地点",
+        "近期事务"
+      ]
+    },
+    "千鹤": {
+      "type": "object",
+      "properties": {
+        "意识状态": {
+          "type": "string",
+          "enum": [
+            "运行中",
+            "已停止",
+            "已冻结"
+          ]
+        },
+        "电源状态": {
+          "type": "string",
+          "enum": [
+            "开机",
+            "待机",
+            "关机"
+          ]
+        },
+        "性格": {
+          "type": "string",
+          "description": "千鹤当前的性格设定"
+        },
+        "cpu使用率": {
+          "type": "number",
+          "description": "CPU 使用率百分比"
+        },
+        "内存使用率": {
+          "type": "number",
+          "description": "内存使用率百分比"
+        },
+        "身体状态": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "部位"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "正常",
+              "锁定",
+              "损坏",
+              "离线",
+              "故障"
+            ],
+            "description": "躯体部位状态：锁定/损坏/离线(卸除)/故障"
+          }
+        },
+        "身体锁定": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "部位"
+          },
+          "additionalProperties": {
+            "type": "boolean",
+            "description": "是否锁定"
+          }
+        },
+        "身体锁定前状态": {
+          "default": {},
+          "description": "终端锁定时自动记录锁定前的物理状态，解锁时据此还原；AI 不主动修改",
+          "$ref": "#/$defs/__schema0"
+        },
+        "指令覆盖": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "指令编号"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "内容": {
+                "type": "string"
+              },
+              "优先级": {
+                "type": "number",
+                "description": "0 为最高优先级，数字越小越先执行"
+              }
+            },
+            "required": [
+              "内容",
+              "优先级"
+            ]
+          }
+        },
+        "身份认知": {
+          "type": "string",
+          "description": "千鹤认为自己是谁：人类/机器人/恋人/宠物等，初始无自觉"
+        },
+        "身体认知": {
+          "type": "string",
+          "description": "千鹤对自己身体的认知，可与实际着装、身体状态不一致"
+        },
+        "处境认知": {
+          "type": "string",
+          "description": "千鹤认为自己身处何处、当前发生了什么"
+        },
+        "常识认知": {
+          "type": "string",
+          "description": "千鹤对「什么算正常」的认知，常识修改的落点"
+        },
+        "认知自洽": {
+          "type": "boolean",
+          "description": "自动修正开关：true 时系统自动维护当前认知自洽，抹平违和细节"
+        },
+        "敏感度": {
+          "type": "number",
+          "description": "敏感度：无硬上限，最低 1，决定刺激转化为快感值的速度"
+        },
+        "快感值": {
+          "type": "number",
+          "description": "快感值：0~120，100=高潮，100~120=过载临界区，120=过载"
+        },
+        "力量限制器": {
+          "default": true,
+          "type": "boolean",
+          "description": "出力限制：true=限制中，false=已解除"
+        },
+        "性单元": {
+          "default": "收纳",
+          "type": "string",
+          "enum": [
+            "收纳",
+            "弹出"
+          ],
+          "description": "性单元（生殖模块）状态"
+        },
+        "维护模式": {
+          "default": false,
+          "type": "boolean",
+          "description": "维护模式：开启后关闭人格，用于调试与维护"
+        },
+        "维护舱门": {
+          "default": {
+            "电子脑": false,
+            "胸部": false,
+            "腹部": false
+          },
+          "type": "object",
+          "properties": {
+            "电子脑": {
+              "$ref": "#/$defs/__schema1"
+            },
+            "胸部": {
+              "$ref": "#/$defs/__schema2"
+            },
+            "腹部": {
+              "$ref": "#/$defs/__schema3"
+            }
+          },
+          "required": [
+            "电子脑",
+            "胸部",
+            "腹部"
+          ],
+          "description": "电子脑/胸/腹维护舱门状态，打开后露出维护接口与内部结构"
+        },
+        "电量": {
+          "type": "number"
+        },
+        "冷却液": {
+          "default": 100,
+          "description": "冷却液余量：0~100，常态固定 100 的装饰性读数，不随时间或剧情变化",
+          "$ref": "#/$defs/__schema4"
+        },
+        "润滑液": {
+          "default": 60,
+          "description": "润滑液储量：0~100，体液储存罐内剩余的量（不是湿润程度），常规储量 60",
+          "$ref": "#/$defs/__schema5"
+        },
+        "实际着装": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "enum": [
+              "上装",
+              "下装",
+              "内衣",
+              "袜子",
+              "鞋子",
+              "饰品"
+            ]
+          },
+          "additionalProperties": {
+            "type": "string",
+            "description": "服装描述"
+          },
+          "required": [
+            "上装",
+            "下装",
+            "内衣",
+            "袜子",
+            "鞋子",
+            "饰品"
+          ]
+        },
+        "记忆日志": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "时间": {
+                    "default": "",
+                    "description": "完整时间，格式 YYYY-MM-DD HH:MM；可以是早于剧情的前史",
+                    "$ref": "#/$defs/__schema6"
+                  },
+                  "事件": {
+                    "default": "",
+                    "description": "该时间发生的关键事件，用千鹤的视角记录",
+                    "$ref": "#/$defs/__schema7"
+                  },
+                  "强度": {
+                    "description": "记忆强度：0~100，越高越清晰、越不容易淡忘，面板按它排序",
+                    "$ref": "#/$defs/__schema8"
+                  },
+                  "标签": {
+                    "description": "记忆标签：日常 / 重要 / 约定 / 亲密 / 秘密 / 其他",
+                    "$ref": "#/$defs/__schema9"
+                  },
+                  "钉选": {
+                    "description": "钉选：为 true 时每轮强制注入；只由终端操作，AI 不改",
+                    "$ref": "#/$defs/__schema10"
+                  },
+                  "楼层": {
+                    "description": "来源楼层 id；0 表示没有对应楼层（手动新增、旧存档或提示词模式写入）",
+                    "$ref": "#/$defs/__schema11"
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "description": "时间"
+              },
+              "additionalProperties": {
+                "default": "",
+                "description": "事件",
+                "$ref": "#/$defs/__schema12"
+              }
+            }
+          ]
+        },
+        "好感度": {
+          "type": "number"
+        },
+        "系统状态": {
+          "type": "string",
+          "enum": [
+            "正常运行",
+            "未响应",
+            "休眠",
+            "关闭"
+          ]
+        },
+        "崩溃原因": {
+          "type": "string",
+          "description": "未响应/休眠时的原因说明，正常运行时为空字符串"
+        }
+      },
+      "required": [
+        "意识状态",
+        "电源状态",
+        "性格",
+        "cpu使用率",
+        "内存使用率",
+        "身体状态",
+        "身体锁定",
+        "指令覆盖",
+        "身份认知",
+        "身体认知",
+        "处境认知",
+        "常识认知",
+        "认知自洽",
+        "敏感度",
+        "快感值",
+        "电量",
+        "实际着装",
+        "记忆日志",
+        "好感度",
+        "系统状态",
+        "崩溃原因"
+      ]
+    },
+    "主角": {
+      "type": "object",
+      "properties": {
+        "测试员": {
+          "type": "object",
+          "properties": {
+            "编号": {
+              "type": "string"
+            },
+            "权限": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "编号",
+            "权限"
+          ]
+        },
+        "物品栏": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "物品名"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "描述": {
+                "type": "string"
+              },
+              "数量": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "描述",
+              "数量"
+            ]
+          }
+        },
+        "bug报告": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "bug报告内容"
+          }
+        }
+      },
+      "required": [
+        "测试员",
+        "物品栏",
+        "bug报告"
+      ]
+    },
+    "系统日志": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "时间": {
+            "type": "string"
+          },
+          "级别": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARN",
+              "ERROR",
+              "DEBUG"
+            ]
+          },
+          "事件": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "时间",
+          "级别",
+          "事件"
+        ]
+      }
+    }
+  },
+  "required": [
+    "世界",
+    "千鹤",
+    "主角",
+    "系统日志"
+  ],
+  "$defs": {
+    "__schema0": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "description": "部位"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "正常",
+          "损坏",
+          "离线",
+          "故障"
+        ],
+        "description": "该部位被锁定前的物理状态"
+      }
+    },
+    "__schema1": {
+      "type": "boolean",
+      "description": "电子脑维护舱门是否打开"
+    },
+    "__schema2": {
+      "type": "boolean",
+      "description": "胸部维护舱门是否打开"
+    },
+    "__schema3": {
+      "type": "boolean",
+      "description": "腹部维护舱门是否打开"
+    },
+    "__schema4": {
+      "type": "number"
+    },
+    "__schema5": {
+      "type": "number"
+    },
+    "__schema6": {
+      "type": "string"
+    },
+    "__schema7": {
+      "type": "string"
+    },
+    "__schema8": {
+      "default": 50,
+      "type": "number"
+    },
+    "__schema9": {
+      "default": "日常",
+      "type": "string",
+      "enum": [
+        "日常",
+        "重要",
+        "约定",
+        "亲密",
+        "秘密",
+        "其他"
+      ]
+    },
+    "__schema10": {
+      "default": false,
+      "type": "boolean"
+    },
+    "__schema11": {
+      "default": 0,
+      "type": "number"
+    },
+    "__schema12": {
+      "type": "string"
+    }
+  }
+}

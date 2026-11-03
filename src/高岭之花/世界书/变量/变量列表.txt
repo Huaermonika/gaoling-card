@@ -1,0 +1,4 @@
+---
+<status_current_variable>
+{{format_message_variable::prompt_snapshot}}
+</status_current_variable>

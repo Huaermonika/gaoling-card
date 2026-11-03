@@ -1,0 +1,590 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "世界": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "当前时间": {
+          "default": "",
+          "type": "string"
+        },
+        "当前地点": {
+          "default": "",
+          "type": "string"
+        },
+        "近期事务": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "事务名"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "description": "事务描述"
+          }
+        }
+      }
+    },
+    "当前角色": {
+      "default": "千鹤",
+      "description": "终端当前显示与控制的角色 id",
+      "$ref": "#/$defs/__schema0"
+    },
+    "角色": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "description": "角色 id"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "类型": {
+                "type": "string",
+                "const": "受控"
+              },
+              "优先级": {
+                "description": "1 最高，3 最低；决定记忆配额与描写权重",
+                "$ref": "#/$defs/__schema1"
+              },
+              "档案": {
+                "default": {},
+                "type": "object",
+                "properties": {
+                  "姓名": {
+                    "default": "",
+                    "description": "必填；1~20 字",
+                    "$ref": "#/$defs/__schema2"
+                  },
+                  "型号": {
+                    "default": "",
+                    "description": "选填；终端标题显示用，空时显示「控制终端」",
+                    "$ref": "#/$defs/__schema3"
+                  },
+                  "外观": {
+                    "default": "",
+                    "description": "选填；外貌、体型、常见着装",
+                    "$ref": "#/$defs/__schema4"
+                  },
+                  "性格": {
+                    "default": "",
+                    "description": "选填；决定语气与行为倾向",
+                    "$ref": "#/$defs/__schema5"
+                  },
+                  "语言习惯": {
+                    "default": "",
+                    "description": "选填；句长、称呼、口癖",
+                    "$ref": "#/$defs/__schema6"
+                  },
+                  "背景": {
+                    "default": "",
+                    "description": "选填；来历、经历、当前处境",
+                    "$ref": "#/$defs/__schema7"
+                  },
+                  "关系": {
+                    "default": "",
+                    "description": "选填；与持有者或其他角色的关系",
+                    "$ref": "#/$defs/__schema8"
+                  },
+                  "其他": {
+                    "default": "",
+                    "description": "选填；其他补充",
+                    "$ref": "#/$defs/__schema9"
+                  }
+                }
+              },
+              "状态": {
+                "type": "object",
+                "properties": {
+                  "意识状态": {
+                    "default": "运行中",
+                    "type": "string",
+                    "enum": [
+                      "运行中",
+                      "已停止",
+                      "已冻结"
+                    ]
+                  },
+                  "电源状态": {
+                    "default": "开机",
+                    "type": "string",
+                    "enum": [
+                      "开机",
+                      "待机",
+                      "关机"
+                    ]
+                  },
+                  "性格": {
+                    "default": "",
+                    "description": "当前性格设定；由档案写入，终端可改",
+                    "$ref": "#/$defs/__schema10"
+                  },
+                  "cpu使用率": {
+                    "default": 20,
+                    "description": "CPU 使用率百分比",
+                    "$ref": "#/$defs/__schema11"
+                  },
+                  "内存使用率": {
+                    "default": 30,
+                    "description": "内存使用率百分比",
+                    "$ref": "#/$defs/__schema12"
+                  },
+                  "身体状态": {
+                    "default": {},
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "description": "部位"
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "enum": [
+                        "正常",
+                        "锁定",
+                        "损坏",
+                        "离线",
+                        "故障"
+                      ],
+                      "description": "躯体部位状态：锁定/损坏/离线(卸除)/故障"
+                    }
+                  },
+                  "身体锁定": {
+                    "default": {},
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "description": "部位"
+                    },
+                    "additionalProperties": {
+                      "type": "boolean",
+                      "description": "是否锁定"
+                    }
+                  },
+                  "身体锁定前状态": {
+                    "default": {},
+                    "description": "终端锁定时自动记录锁定前的物理状态，解锁时据此还原；AI 不主动修改",
+                    "$ref": "#/$defs/__schema13"
+                  },
+                  "指令覆盖": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "description": "指令编号"
+                    },
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "内容": {
+                          "type": "string"
+                        },
+                        "优先级": {
+                          "type": "number",
+                          "description": "0 为最高优先级，数字越小越先执行"
+                        }
+                      },
+                      "required": [
+                        "内容",
+                        "优先级"
+                      ]
+                    }
+                  },
+                  "身份认知": {
+                    "default": "知道自己是仿生机器人",
+                    "type": "string"
+                  },
+                  "身体认知": {
+                    "default": "清楚自己的身体是仿生机体",
+                    "type": "string"
+                  },
+                  "处境认知": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "常识认知": {
+                    "default": "现代社会的常识；仿生机器人与控制终端不对外公开",
+                    "type": "string"
+                  },
+                  "认知自洽": {
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "敏感度": {
+                    "default": 10,
+                    "description": "敏感度：无硬上限，最低 1，决定刺激转化为快感值的速度",
+                    "$ref": "#/$defs/__schema14"
+                  },
+                  "快感值": {
+                    "default": 0,
+                    "description": "快感值：0~120，100=高潮，100~120=过载临界区，120=过载",
+                    "$ref": "#/$defs/__schema15"
+                  },
+                  "力量限制器": {
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "性单元": {
+                    "default": "收纳",
+                    "type": "string",
+                    "enum": [
+                      "收纳",
+                      "弹出"
+                    ]
+                  },
+                  "维护模式": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "维护舱门": {
+                    "default": {},
+                    "type": "object",
+                    "properties": {
+                      "电子脑": {
+                        "default": false,
+                        "type": "boolean"
+                      },
+                      "胸部": {
+                        "default": false,
+                        "type": "boolean"
+                      },
+                      "腹部": {
+                        "default": false,
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "电量": {
+                    "default": 100,
+                    "type": "number"
+                  },
+                  "冷却液": {
+                    "default": 100,
+                    "description": "冷却液余量：0~100，常态固定 100 的装饰性读数",
+                    "$ref": "#/$defs/__schema16"
+                  },
+                  "润滑液": {
+                    "default": 60,
+                    "description": "润滑液储量：0~100，常规储量 60",
+                    "$ref": "#/$defs/__schema17"
+                  },
+                  "实际着装": {
+                    "default": {},
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "enum": [
+                        "上装",
+                        "下装",
+                        "内衣",
+                        "袜子",
+                        "鞋子",
+                        "饰品"
+                      ]
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "description": "服装描述"
+                    }
+                  },
+                  "记忆日志": {
+                    "anyOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "时间": {
+                              "default": "",
+                              "description": "完整时间，格式 YYYY-MM-DD HH:MM；可以是早于剧情的前史",
+                              "$ref": "#/$defs/__schema18"
+                            },
+                            "事件": {
+                              "default": "",
+                              "description": "该时间发生的关键事件，用该角色的视角记录",
+                              "$ref": "#/$defs/__schema19"
+                            },
+                            "强度": {
+                              "description": "记忆强度：0~100，越高越清晰、越不容易淡忘，面板按它排序",
+                              "$ref": "#/$defs/__schema20"
+                            },
+                            "标签": {
+                              "description": "记忆标签：日常 / 重要 / 约定 / 亲密 / 秘密 / 其他",
+                              "$ref": "#/$defs/__schema21"
+                            },
+                            "钉选": {
+                              "description": "钉选：为 true 时每轮强制注入；只由终端操作，AI 不改",
+                              "$ref": "#/$defs/__schema22"
+                            },
+                            "楼层": {
+                              "description": "来源楼层 id；0 表示没有对应楼层（手动新增、旧存档或提示词模式写入）",
+                              "$ref": "#/$defs/__schema23"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string",
+                          "description": "时间"
+                        },
+                        "additionalProperties": {
+                          "default": "",
+                          "description": "事件",
+                          "$ref": "#/$defs/__schema24"
+                        }
+                      }
+                    ]
+                  },
+                  "好感度": {
+                    "default": 0,
+                    "type": "number"
+                  },
+                  "系统状态": {
+                    "default": "正常运行",
+                    "type": "string",
+                    "enum": [
+                      "正常运行",
+                      "未响应",
+                      "休眠",
+                      "关闭"
+                    ]
+                  },
+                  "崩溃原因": {
+                    "default": "",
+                    "description": "未响应/休眠时的原因说明，正常运行时为空字符串",
+                    "$ref": "#/$defs/__schema25"
+                  }
+                }
+              }
+            },
+            "required": [
+              "类型",
+              "状态"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "类型": {
+                "type": "string",
+                "const": "背景"
+              },
+              "档案": {
+                "default": {},
+                "type": "object",
+                "properties": {
+                  "姓名": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "外观": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "关系": {
+                    "default": "",
+                    "type": "string"
+                  },
+                  "备注": {
+                    "default": "",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "required": [
+              "类型"
+            ]
+          }
+        ]
+      }
+    },
+    "主角": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "持有者": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "称呼": {
+              "default": "",
+              "type": "string"
+            },
+            "权限": {
+              "default": "完整控制权限",
+              "type": "string"
+            }
+          }
+        },
+        "物品栏": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "物品名"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "描述": {
+                "default": "",
+                "type": "string"
+              },
+              "数量": {
+                "default": 0,
+                "type": "number"
+              }
+            }
+          }
+        },
+        "bug报告": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "系统日志": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "时间": {
+            "default": "",
+            "type": "string"
+          },
+          "级别": {
+            "default": "INFO",
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARN",
+              "ERROR",
+              "DEBUG"
+            ]
+          },
+          "事件": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "__schema0": {
+      "type": "string"
+    },
+    "__schema1": {
+      "default": 1,
+      "type": "number"
+    },
+    "__schema2": {
+      "type": "string"
+    },
+    "__schema3": {
+      "type": "string"
+    },
+    "__schema4": {
+      "type": "string"
+    },
+    "__schema5": {
+      "type": "string"
+    },
+    "__schema6": {
+      "type": "string"
+    },
+    "__schema7": {
+      "type": "string"
+    },
+    "__schema8": {
+      "type": "string"
+    },
+    "__schema9": {
+      "type": "string"
+    },
+    "__schema10": {
+      "type": "string"
+    },
+    "__schema11": {
+      "type": "number"
+    },
+    "__schema12": {
+      "type": "number"
+    },
+    "__schema13": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "description": "部位"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "正常",
+          "损坏",
+          "离线",
+          "故障"
+        ],
+        "description": "该部位被锁定前的物理状态"
+      }
+    },
+    "__schema14": {
+      "type": "number"
+    },
+    "__schema15": {
+      "type": "number"
+    },
+    "__schema16": {
+      "type": "number"
+    },
+    "__schema17": {
+      "type": "number"
+    },
+    "__schema18": {
+      "type": "string"
+    },
+    "__schema19": {
+      "type": "string"
+    },
+    "__schema20": {
+      "default": 50,
+      "type": "number"
+    },
+    "__schema21": {
+      "default": "日常",
+      "type": "string",
+      "enum": [
+        "日常",
+        "重要",
+        "约定",
+        "亲密",
+        "秘密",
+        "其他"
+      ]
+    },
+    "__schema22": {
+      "default": false,
+      "type": "boolean"
+    },
+    "__schema23": {
+      "default": 0,
+      "type": "number"
+    },
+    "__schema24": {
+      "type": "string"
+    },
+    "__schema25": {
+      "type": "string"
+    }
+  }
+}
