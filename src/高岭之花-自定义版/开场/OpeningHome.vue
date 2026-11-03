@@ -13,14 +13,15 @@
                 <b>{{ page.key === 'custom' ? '你的角色' : '角色库' }}</b>
                 <small>{{ page.key === 'custom' ? '创建后可上传立绘' : '草稿 · 导入导出' }}</small>
               </div>
-              <div class="oh-shade" />
               <span v-if="page.badge" class="oh-badge">{{ page.badge }}</span>
-              <div class="oh-page-caption">
-                <span class="oh-kicker">{{ page.kicker }}</span>
-                <h2>{{ page.title }}</h2>
-                <p>{{ page.line }}</p>
-                <button class="oh-btn primary big" type="button" @click="page.action">{{ page.button }}</button>
-              </div>
+            </div>
+
+            <div class="oh-page-caption">
+              <span class="oh-kicker">{{ page.kicker }}</span>
+              <h2>{{ page.title }}</h2>
+              <p>{{ page.line }}</p>
+              <span class="oh-page-meta">{{ page.meta }}</span>
+              <button class="oh-btn primary big" type="button" @click="page.action">{{ page.button }}</button>
             </div>
           </article>
         </div>
@@ -96,19 +97,19 @@
         <span class="oh-save" :class="{ saving }">{{ saving ? '保存中…' : savedAt ? `已暂存 ${timeText(savedAt)}` : '未保存' }}</span>
       </header>
 
-      <div class="oh-editor">
-        <nav class="oh-rail">
-          <button
-            v-for="section in sections"
-            :key="section.key"
-            type="button"
-            :class="{ active: currentSection === section.key, done: sectionDone(section.key) }"
-            @click="currentSection = section.key"
-          >
-            <i></i>{{ section.label }}
-          </button>
-        </nav>
+      <nav class="oh-line">
+        <button
+          v-for="section in sections"
+          :key="section.key"
+          type="button"
+          :class="{ active: currentSection === section.key, done: sectionDone(section.key) }"
+          @click="currentSection = section.key"
+        >
+          <i></i><span>{{ section.label }}</span>
+        </button>
+      </nav>
 
+      <div class="oh-editor">
         <div class="oh-form">
           <template v-if="currentSection === 'role'">
             <div class="oh-avatar-row">
@@ -126,10 +127,12 @@
               <label class="oh-field"><span>姓名 <i>必填</i></span><input v-model="form.姓名" maxlength="20" placeholder="例如：岚" /></label>
               <label class="oh-field"><span>型号</span><input v-model="form.型号" maxlength="30" placeholder="例如：HK-7" /></label>
             </div>
-            <label class="oh-field"><span>外观</span><textarea v-model="form.外观" rows="2" placeholder="外形、体型、常见着装" /></label>
-            <label class="oh-field"><span>性格</span><textarea v-model="form.性格" rows="2" placeholder="语气与行为倾向" /></label>
-            <label class="oh-field"><span>背景</span><textarea v-model="form.背景" rows="2" placeholder="来历、经历、当前处境" /></label>
-            <label class="oh-field"><span>关系</span><textarea v-model="form.关系" rows="2" placeholder="与持有者的关系" /></label>
+            <label class="oh-field"><span>外观</span><textarea v-model="form.外观" rows="3" placeholder="外形、体型、常见着装" /></label>
+            <label class="oh-field"><span>性格</span><textarea v-model="form.性格" rows="3" placeholder="语气与行为倾向" /></label>
+            <label class="oh-field"><span>语言习惯</span><textarea v-model="form.语言习惯" rows="2" placeholder="句长、称呼、口癖" /></label>
+            <label class="oh-field"><span>背景</span><textarea v-model="form.背景" rows="3" placeholder="来历、经历、当前处境" /></label>
+            <label class="oh-field"><span>关系</span><textarea v-model="form.关系" rows="3" placeholder="与持有者的关系" /></label>
+            <label class="oh-field"><span>其他</span><textarea v-model="form.其他" rows="2" placeholder="补充" /></label>
           </template>
 
           <template v-else-if="currentSection === 'opening'">
@@ -195,40 +198,44 @@
 
       <div class="oh-sub-body">
         <div class="oh-lib-tabs">
-          <button
-            v-for="item in filters"
-            :key="item.key"
-            type="button"
-            class="oh-filter"
-            :class="{ active: filter === item.key }"
-            @click="filter = item.key"
-          >
-            {{ item.label }} <i>{{ item.count }}</i>
+          <button type="button" class="oh-filter" :class="{ active: manageTab === 'mine' }" @click="manageTab = 'mine'">
+            我的角色 <i>{{ mine.length }}</i>
+          </button>
+          <button type="button" class="oh-filter" :class="{ active: manageTab === 'workshop' }" @click="manageTab = 'workshop'">
+            创意工坊
           </button>
         </div>
 
-        <div v-if="!filtered.length" class="oh-empty">
-          <p>{{ filter === 'all' ? '还没有保存的角色。' : '这个分类下还没有角色。' }}</p>
-          <button class="oh-btn primary" type="button" @click="openCustom()">新建角色</button>
-        </div>
+        <template v-if="manageTab === 'mine'">
+          <div v-if="!mine.length" class="oh-empty">
+            <p>还没有保存的角色。</p>
+            <button class="oh-btn primary" type="button" @click="openCustom()">新建角色</button>
+          </div>
 
-        <div v-else class="oh-lib-grid">
-          <article v-for="item in filtered" :key="item.id" class="oh-card">
-            <button class="oh-card-main" type="button" @click="editCharacter(item)">
-              <div class="oh-card-cover" :style="item.avatar ? { backgroundImage: `url(&quot;${item.avatar}&quot;)` } : {}">
-                {{ item.avatar ? '' : firstChar(item.name) }}
+          <div v-else class="oh-lib-grid">
+            <article v-for="item in mine" :key="item.id" class="oh-card">
+              <button class="oh-card-main" type="button" @click="editCharacter(item)">
+                <div class="oh-card-cover" :style="item.avatar ? { backgroundImage: `url(&quot;${item.avatar}&quot;)` } : {}">
+                  {{ item.avatar ? '' : firstChar(item.name) }}
+                </div>
+                <div class="oh-card-info">
+                  <b>{{ item.name || '未命名角色' }}</b>
+                  <span>{{ item.profile.型号 || '未填写型号' }}</span>
+                  <em>{{ timeText(item.updatedAt) }}</em>
+                </div>
+              </button>
+              <div class="oh-card-actions">
+                <button type="button" @click="exportOne(item)">导出</button>
+                <button type="button" class="danger" @click="removeCharacter(item)">删除</button>
               </div>
-              <div class="oh-card-info">
-                <b>{{ item.name || '未命名角色' }}</b>
-                <span>{{ item.profile.型号 || '未填写型号' }}</span>
-                <em>{{ item.status === 'draft' ? '草稿' : '已完成' }} · {{ timeText(item.updatedAt) }}</em>
-              </div>
-            </button>
-            <div class="oh-card-actions">
-              <button type="button" @click="exportOne(item)">导出</button>
-              <button type="button" class="danger" @click="removeCharacter(item)">删除</button>
-            </div>
-          </article>
+            </article>
+          </div>
+        </template>
+
+        <div v-else class="oh-workshop">
+          <b>创意工坊</b>
+          <p>浏览官方审核过的玩家角色，选中后导入本机使用。</p>
+          <span>接口预留，尚未开放</span>
         </div>
 
         <div class="oh-section">导入导出</div>
@@ -293,16 +300,9 @@ function openingExcerpt(text: string) {
 }
 
 const saved = ref<CharacterPreset[]>([]);
-const drafts = computed(() => saved.value.filter(item => item.status === 'draft'));
-const filter = ref<'all' | 'draft' | 'ready'>('all');
-const filtered = computed(() =>
-  saved.value.filter(item => filter.value === 'all' || item.status === filter.value),
-);
-const filters = computed(() => [
-  { key: 'all' as const, label: '全部', count: saved.value.length },
-  { key: 'draft' as const, label: '草稿', count: drafts.value.length },
-  { key: 'ready' as const, label: '已完成', count: saved.value.length - drafts.value.length },
-]);
+const manageTab = ref<'mine' | 'workshop'>('mine');
+/** 角色库只管理玩家自定义来源；官方、背景角色不在这里 */
+const mine = computed(() => saved.value.filter(item => item.source === 'custom'));
 
 const importInput = ref<HTMLInputElement | null>(null);
 const avatarInput = ref<HTMLInputElement | null>(null);
@@ -321,8 +321,10 @@ const form = reactive({
   型号: '',
   外观: '',
   性格: '',
+  语言习惯: '',
   背景: '',
   关系: '',
+  其他: '',
   avatar: '',
   开场名称: '初次连接',
   开场白: '',
@@ -391,8 +393,10 @@ function buildRecord(status: 'draft' | 'ready'): CharacterPreset {
       型号: form.型号.trim(),
       外观: form.外观.trim(),
       性格: form.性格.trim(),
+      语言习惯: form.语言习惯.trim(),
       背景: form.背景.trim(),
       关系: form.关系.trim(),
+      其他: form.其他.trim(),
     },
     openings: [
       {
@@ -443,8 +447,10 @@ function openCustom(record?: CharacterPreset) {
     form.型号 = record.profile.型号;
     form.外观 = record.profile.外观;
     form.性格 = record.profile.性格;
+    form.语言习惯 = record.profile.语言习惯;
     form.背景 = record.profile.背景;
     form.关系 = record.profile.关系;
+    form.其他 = record.profile.其他;
     form.avatar = record.avatar ?? '';
     form.开场名称 = record.openings[0]?.name ?? '初次连接';
     form.开场白 = record.openings[0]?.text ?? '';
@@ -461,8 +467,10 @@ function openCustom(record?: CharacterPreset) {
     form.型号 = '';
     form.外观 = '';
     form.性格 = '';
+    form.语言习惯 = '';
     form.背景 = '';
     form.关系 = '';
+    form.其他 = '';
     form.avatar = '';
     form.开场名称 = '初次连接';
     form.开场白 = '';
@@ -521,8 +529,10 @@ async function startCustom() {
       型号: form.型号,
       外观: form.外观,
       性格: form.性格,
+      语言习惯: form.语言习惯,
       背景: form.背景,
       关系: form.关系,
+      其他: form.其他,
       开场白: form.开场白,
       持有者称呼: form.持有者称呼,
       地点: form.地点,
@@ -636,7 +646,8 @@ const pages = computed(() => [
     key: 'custom',
     kicker: 'Custom',
     title: '自定义角色',
-    line: '写一个属于你的角色，开场与世界都由你定。',
+    line: '给她名字、脸、来历和说话方式。开场自己写，世界自己定；可以只写一个名字就开始，剩下的边玩边补。',
+    meta: '本机保存 · 自动暂存',
     button: '创建角色',
     cover: '',
     badge: '',
@@ -646,7 +657,8 @@ const pages = computed(() => [
     key: 'official',
     kicker: 'Official',
     title: '白峰千鹤',
-    line: 'AN-0170A · 三条官方故事，档案只读。',
+    line: '清岭学园二年 A 班，成绩与体育常年第一。三条开场分别从早自习的教室、放学后的补习、以及她家门口开始；她不知道自己是机器人。',
+    meta: '档案只读 · 三条开场',
     button: '进入',
     cover: cardImage.value,
     badge: '官方',
@@ -659,7 +671,8 @@ const pages = computed(() => [
     key: 'manage',
     kicker: 'Library',
     title: '管理',
-    line: '角色库、草稿、导入导出。',
+    line: '只放你自己写的角色。保存或导入后就会出现在这里，可以导出成文件带走；官方角色与背景人物不会混进来。',
+    meta: '自定义角色 · 导入导出',
     button: '打开',
     cover: '',
     badge: '',
@@ -767,7 +780,7 @@ function scrollToPage(index: number) {
 }
 
 .oh-page.manage .oh-cover {
-  background: repeating-linear-gradient(180deg, var(--panel-2), var(--panel-2) 22px, var(--panel) 22px, var(--panel) 23px);
+  background: var(--bg-2);
 }
 
 .oh-cover-empty {
@@ -810,7 +823,7 @@ function scrollToPage(index: number) {
 }
 
 .oh-page.manage .oh-placeholder {
-  border-style: dashed;
+  border-style: none;
 }
 
 .oh-ph-label {
@@ -1118,6 +1131,67 @@ function scrollToPage(index: number) {
   flex: 1;
   min-height: 0;
   display: flex;
+  flex-direction: column;
+}
+
+.oh-line {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  padding: 14px 10px 6px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 32px;
+    right: 32px;
+    top: 18px;
+    height: 1px;
+    background: var(--line-2);
+  }
+
+  button {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--line-2);
+  }
+
+  button.done i {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  button.active i {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
+  button.active span {
+    color: var(--accent);
+  }
 }
 
 .oh-rail {
@@ -1322,6 +1396,36 @@ function scrollToPage(index: number) {
   gap: 5px;
 }
 
+.oh-workshop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 30px 18px;
+  border: 1px dashed var(--line-2);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--muted);
+
+  b {
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  p {
+    margin: 0;
+    max-width: 260px;
+    font-size: 11.5px;
+    line-height: 1.7;
+  }
+
+  span {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--accent);
+  }
+}
+
 .oh-lib-tabs {
   display: flex;
   gap: 6px;
@@ -1377,13 +1481,13 @@ function scrollToPage(index: number) {
 
 .oh-card-cover {
   height: 120px;
-  background: linear-gradient(135deg, var(--avatar-a), var(--avatar-b));
+  background: var(--panel-2);
   background-size: cover;
   background-position: center top;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--muted);
   font-size: 26px;
   font-weight: 700;
 }
@@ -1523,6 +1627,8 @@ function scrollToPage(index: number) {
 .oh-page {
   flex: 0 0 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
   border: 0;
   border-radius: 0;
   background: var(--bg);
@@ -1530,8 +1636,55 @@ function scrollToPage(index: number) {
 }
 
 .oh-cover {
-  height: 100%;
+  flex: 0 0 58%;
+  height: auto;
+  position: relative;
   border-radius: 0;
+}
+
+.oh-page-caption {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 18px 22px calc(30px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--text);
+  background: var(--bg);
+
+  .oh-kicker {
+    color: var(--accent);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+
+  p {
+    margin: 0 0 4px;
+    max-width: 100%;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--muted);
+  }
+
+  .oh-btn {
+    margin-top: 14px;
+    width: 100%;
+  }
+}
+
+.oh-page-meta {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--muted);
 }
 
 .oh-shade {
@@ -1539,38 +1692,6 @@ function scrollToPage(index: number) {
   inset: 0;
   background: linear-gradient(to bottom, transparent 32%, rgba(20, 16, 12, 0.74) 100%);
   pointer-events: none;
-}
-
-.oh-page-caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 24px 22px calc(34px + env(safe-area-inset-bottom));
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 5px;
-
-  .oh-kicker {
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 30px;
-    font-weight: 600;
-    letter-spacing: 1px;
-  }
-
-  p {
-    margin: 0 0 10px;
-    max-width: 90%;
-    font-size: 13px;
-    line-height: 1.65;
-    color: rgba(255, 255, 255, 0.82);
-  }
 }
 
 .oh-btn.big {
@@ -1587,7 +1708,7 @@ function scrollToPage(index: number) {
   width: 38px;
   height: 66px;
   border: 0;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(38, 33, 27, 0.28);
   color: #fff;
   font-size: 30px;
   line-height: 1;
@@ -1625,10 +1746,10 @@ function scrollToPage(index: number) {
 .oh-dot {
   width: 7px;
   height: 7px;
-  background: rgba(255, 255, 255, 0.38);
+  background: var(--line-2);
 
   &.active {
-    background: #fff;
+    background: var(--accent);
   }
 }
 

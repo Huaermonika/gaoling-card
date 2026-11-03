@@ -18,8 +18,10 @@ export interface CharacterProfile {
   型号: string;
   外观: string;
   性格: string;
+  语言习惯: string;
   背景: string;
   关系: string;
+  其他: string;
 }
 
 export interface CharacterWorld {
@@ -78,7 +80,21 @@ function run<T>(mode: IDBTransactionMode, fn: (store: IDBObjectStore) => IDBRequ
 
 export function listCharacters(): Promise<CharacterPreset[]> {
   return run('readonly', store => store.getAll()).then(list =>
-    list.sort((a, b) => b.updatedAt - a.updatedAt),
+    list
+      .map(record => ({
+        ...record,
+        profile: {
+          姓名: record.profile?.姓名 ?? '',
+          型号: record.profile?.型号 ?? '',
+          外观: record.profile?.外观 ?? '',
+          性格: record.profile?.性格 ?? '',
+          语言习惯: record.profile?.语言习惯 ?? '',
+          背景: record.profile?.背景 ?? '',
+          关系: record.profile?.关系 ?? '',
+          其他: record.profile?.其他 ?? '',
+        },
+      }))
+      .sort((a, b) => b.updatedAt - a.updatedAt),
   );
 }
 
@@ -161,8 +177,10 @@ function parseCharacter(c: any): Omit<CharacterPreset, 'id' | 'createdAt' | 'upd
     型号: String(c.profile?.型号 ?? ''),
     外观: String(c.profile?.外观 ?? ''),
     性格: String(c.profile?.性格 ?? ''),
+    语言习惯: String(c.profile?.语言习惯 ?? ''),
     背景: String(c.profile?.背景 ?? ''),
     关系: String(c.profile?.关系 ?? ''),
+    其他: String(c.profile?.其他 ?? ''),
   };
   const openings: StoredOpening[] = Array.isArray(c.openings)
     ? c.openings

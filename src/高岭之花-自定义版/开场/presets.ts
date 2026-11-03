@@ -42,8 +42,10 @@ export interface CustomOpeningInput {
   型号: string;
   外观: string;
   性格: string;
+  语言习惯: string;
   背景: string;
   关系: string;
+  其他: string;
   开场白: string;
   持有者称呼: string;
   地点: string;
@@ -76,10 +78,10 @@ export function buildCustomOpening(input: CustomOpeningInput): OpeningPreset {  
     型号: input.型号.trim(),
     外观: input.外观.trim(),
     性格: input.性格.trim(),
-    语言习惯: '',
+    语言习惯: input.语言习惯.trim(),
     背景: input.背景.trim(),
     关系: input.关系.trim(),
-    其他: '',
+    其他: input.其他.trim(),
   });
 
   const 状态 = 受控状态Schema.parse({
@@ -119,7 +121,16 @@ export function buildCustomOpening(input: CustomOpeningInput): OpeningPreset {  
 
 /** 从角色库记录生成可直接写入的开场 */
 export function openingFromCharacter(record: {
-  profile: { 姓名: string; 型号: string; 外观: string; 性格: string; 背景: string; 关系: string };
+  profile: {
+    姓名: string;
+    型号: string;
+    外观: string;
+    性格: string;
+    语言习惯: string;
+    背景: string;
+    关系: string;
+    其他: string;
+  };
   world: { 持有者称呼: string; 地点: string; 时间: string; 处境: string; 设定: string };
   openings: { id: string; name: string; text: string }[];
 }, openingIndex = 0): OpeningPreset {
@@ -130,8 +141,10 @@ export function openingFromCharacter(record: {
     型号: record.profile.型号,
     外观: record.profile.外观,
     性格: record.profile.性格,
+    语言习惯: record.profile.语言习惯,
     背景: record.profile.背景,
     关系: record.profile.关系,
+    其他: record.profile.其他,
     持有者称呼: record.world.持有者称呼,
     地点: record.world.地点,
     时间: record.world.时间,
