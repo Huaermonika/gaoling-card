@@ -7,6 +7,7 @@ import { initFloorWindow, inWindow } from './floor-window';
 import { initHideUI } from './hide-ui';
 import { initSubmodel } from './submodel';
 import { initPromptInjection } from './prompt-inject';
+import { initGallery } from '../../画廊/runtime';
 import { preprocessForDisplay, stripRenderedCodeBlocks } from './strip-framework';
 
 $(async () => {
@@ -46,6 +47,9 @@ $(async () => {
 
   // 变量快照与记忆提示：不写进聊天记录，只在生成时注入
   initPromptInjection();
+
+  // 画廊：同步官方图，并在生成结束后评估立绘触发
+  initGallery();
 });
 
 // 隐藏滚动条：注入 CSS 让主页面与 iframe 内的滚动条都不可见

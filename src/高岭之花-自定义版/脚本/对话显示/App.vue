@@ -65,6 +65,7 @@
                 <div class="app-model">{{ roleModel }} · 控制终端 <i class="brand-caret">▾</i></div>
               </div>
             </div>
+            <button class="app-gallery" type="button" title="画廊" @click="galleryOpen = true">▣</button>
             <span class="app-state" :class="stateClass">{{ store.data.千鹤.意识状态 }}</span>
           </div>
           <div v-if="showSwitchHint" class="switch-hint" @click="dismissSwitchHint">
@@ -243,6 +244,7 @@
                     <div class="app-model">{{ roleModel }} · 控制终端 <i class="brand-caret">▾</i></div>
                   </div>
                 </div>
+                <button class="app-gallery" type="button" title="画廊" @click="galleryOpen = true">▣</button>
                 <span class="app-state" :class="stateClass">{{ store.data.千鹤.意识状态 }}</span>
               </div>
               <div v-if="showSwitchHint" class="switch-hint" @click="dismissSwitchHint">
@@ -318,6 +320,7 @@
       @create="createFromDrawer"
     />
     <RoleManager v-if="roleManagerOpen" :start-create="roleManagerCreate" @close="closeRoleManager" />
+    <GalleryPanel v-if="galleryOpen" @close="galleryOpen = false" />
   </div>
 </template>
 
@@ -337,6 +340,7 @@ import SystemPanel from '../../界面/控制终端/components/SystemPanel.vue';
 import SettingsPanel from './SettingsPanel.vue';
 import RoleManager from '../../界面/控制终端/components/RoleManager.vue';
 import RoleDrawer from '../../界面/控制终端/components/RoleDrawer.vue';
+import GalleryPanel from '../../画廊/GalleryPanel.vue';
 import { getRoleArt } from '../../界面/控制终端/role-art';
 import { ensurePresetArt, getCardImage } from '../../界面/控制终端/role-art';
 import FlatConsole from './FlatConsole.vue';
@@ -383,6 +387,7 @@ const roles = computed(() => controllableRoles(store.data));
 const roleManagerOpen = ref(false);
 const roleManagerCreate = ref(false);
 const roleDrawerOpen = ref(false);
+const galleryOpen = ref(false);
 const showSwitchHint = ref(false);
 let switchHintTimer: number | undefined;
 
@@ -1049,6 +1054,26 @@ const dialogHtml = computed(() => context.message || '');
     color: var(--blue);
     border-color: var(--blue);
     background: color-mix(in srgb, var(--blue) 12%, transparent);
+  }
+}
+
+.app-gallery {
+  margin-left: auto;
+  margin-right: 7px;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 }
 
