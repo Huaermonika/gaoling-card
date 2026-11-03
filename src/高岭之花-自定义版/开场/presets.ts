@@ -45,6 +45,11 @@ export interface CustomOpeningInput {
   背景: string;
   关系: string;
   开场白: string;
+  持有者称呼: string;
+  地点: string;
+  时间: string;
+  处境: string;
+  世界设定: string;
 }
 
 export function defaultCustomText(name: string): string {
@@ -55,14 +60,15 @@ export function defaultCustomText(name: string): string {
 你抬起头。${who}站在不远处，像是刚从待机中醒来，目光落在你身上，安静地等一个指令。`;
 }
 
-export function buildCustomOpening(input: CustomOpeningInput): OpeningPreset {
-  const name = input.姓名.trim();
+export function buildCustomOpening(input: CustomOpeningInput): OpeningPreset {  const name = input.姓名.trim();
   if (!name) throw new Error('姓名必填');
 
-  const time = '2026-04-06 09:00';
+  const time = input.时间.trim() || '2026-04-06 09:00';
+  const place = input.地点.trim() || '你的住处';
+  const holder = input.持有者称呼.trim() || '你';
   const memories: 记忆条目[] = [
-    { 时间: '2026-04-06 08:50', 事件: '终端第一次亮起，连接建立。', 强度: 60, 标签: '重要', 钉选: false, 楼层: 0 },
-    { 时间: time, 事件: `${name}第一次在房间里见到持有者。`, 强度: 70, 标签: '重要', 钉选: false, 楼层: 0 },
+    { 时间: time, 事件: '终端第一次亮起，连接建立。', 强度: 60, 标签: '重要', 钉选: false, 楼层: 0 },
+    { 时间: time, 事件: `${name}第一次在${place}见到持有者。`, 强度: 70, 标签: '重要', 钉选: false, 楼层: 0 },
   ];
 
   const 档案 = 受控档案.parse({
@@ -78,14 +84,15 @@ export function buildCustomOpening(input: CustomOpeningInput): OpeningPreset {
 
   const 状态 = 受控状态Schema.parse({
     性格: input.性格.trim(),
-    处境认知: '和持有者在一起',
+    处境认知: input.处境.trim() || `和${holder}在一起`,
     记忆日志: memories,
   });
 
   const data = Schema.parse({
     世界: {
       当前时间: time,
-      当前地点: '你的住处',
+      当前地点: place,
+      设定: input.世界设定.trim(),
       近期事务: {},
     },
     当前角色: 'c1',
@@ -93,7 +100,7 @@ export function buildCustomOpening(input: CustomOpeningInput): OpeningPreset {
       c1: { 类型: '受控', 优先级: 1, 档案, 状态 },
     },
     主角: {
-      持有者: { 称呼: '你', 权限: '完整控制权限' },
+      持有者: { 称呼: holder, 权限: '完整控制权限' },
       物品栏: {},
       bug报告: [],
     },
@@ -108,4 +115,28 @@ export function buildCustomOpening(input: CustomOpeningInput): OpeningPreset {
     text: input.开场白.trim() || defaultCustomText(name),
     data,
   };
+}
+
+/** 从角色库记录生成可直接写入的开场 */
+export function openingFromCharacter(record: {
+  profile: { 姓名: string; 型号: string; 外观: string; 性格: string; 背景: string; 关系: string };
+  world: { 持有者称呼: string; 地点: string; 时间: string; 处境: string; 设定: string };
+  openings: { id: string; name: string; text: string }[];
+}, openingIndex = 0): OpeningPreset {
+  const opening = record.openings[openingIndex] ?? record.openings[0];
+  if (!opening) throw new Error('角色没有开场');
+  return buildCustomOpening({
+    姓名: record.profile.姓名,
+    型号: record.profile.型号,
+    外观: record.profile.外观,
+    性格: record.profile.性格,
+    背景: record.profile.背景,
+    关系: record.profile.关系,
+    持有者称呼: record.world.持有者称呼,
+    地点: record.world.地点,
+    时间: record.world.时间,
+    处境: record.world.处境,
+    世界设定: record.world.设定,
+    开场白: opening.text,
+  });
 }

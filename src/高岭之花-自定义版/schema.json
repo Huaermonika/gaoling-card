@@ -14,6 +14,11 @@
           "default": "",
           "type": "string"
         },
+        "设定": {
+          "default": "",
+          "description": "世界设定：时代、城市、机构、公开规则等，供自定义世界使用",
+          "$ref": "#/$defs/__schema0"
+        },
         "近期事务": {
           "default": {},
           "type": "object",
@@ -31,7 +36,7 @@
     "当前角色": {
       "default": "千鹤",
       "description": "终端当前显示与控制的角色 id",
-      "$ref": "#/$defs/__schema0"
+      "$ref": "#/$defs/__schema1"
     },
     "角色": {
       "type": "object",
@@ -50,7 +55,7 @@
               },
               "优先级": {
                 "description": "1 最高，3 最低；决定记忆配额与描写权重",
-                "$ref": "#/$defs/__schema1"
+                "$ref": "#/$defs/__schema2"
               },
               "档案": {
                 "default": {},
@@ -59,42 +64,42 @@
                   "姓名": {
                     "default": "",
                     "description": "必填；1~20 字",
-                    "$ref": "#/$defs/__schema2"
+                    "$ref": "#/$defs/__schema3"
                   },
                   "型号": {
                     "default": "",
                     "description": "选填；终端标题显示用，空时显示「控制终端」",
-                    "$ref": "#/$defs/__schema3"
+                    "$ref": "#/$defs/__schema4"
                   },
                   "外观": {
                     "default": "",
                     "description": "选填；外貌、体型、常见着装",
-                    "$ref": "#/$defs/__schema4"
+                    "$ref": "#/$defs/__schema5"
                   },
                   "性格": {
                     "default": "",
                     "description": "选填；决定语气与行为倾向",
-                    "$ref": "#/$defs/__schema5"
+                    "$ref": "#/$defs/__schema6"
                   },
                   "语言习惯": {
                     "default": "",
                     "description": "选填；句长、称呼、口癖",
-                    "$ref": "#/$defs/__schema6"
+                    "$ref": "#/$defs/__schema7"
                   },
                   "背景": {
                     "default": "",
                     "description": "选填；来历、经历、当前处境",
-                    "$ref": "#/$defs/__schema7"
+                    "$ref": "#/$defs/__schema8"
                   },
                   "关系": {
                     "default": "",
                     "description": "选填；与持有者或其他角色的关系",
-                    "$ref": "#/$defs/__schema8"
+                    "$ref": "#/$defs/__schema9"
                   },
                   "其他": {
                     "default": "",
                     "description": "选填；其他补充",
-                    "$ref": "#/$defs/__schema9"
+                    "$ref": "#/$defs/__schema10"
                   }
                 }
               },
@@ -122,17 +127,17 @@
                   "性格": {
                     "default": "",
                     "description": "当前性格设定；由档案写入，终端可改",
-                    "$ref": "#/$defs/__schema10"
+                    "$ref": "#/$defs/__schema11"
                   },
                   "cpu使用率": {
                     "default": 20,
                     "description": "CPU 使用率百分比",
-                    "$ref": "#/$defs/__schema11"
+                    "$ref": "#/$defs/__schema12"
                   },
                   "内存使用率": {
                     "default": 30,
                     "description": "内存使用率百分比",
-                    "$ref": "#/$defs/__schema12"
+                    "$ref": "#/$defs/__schema13"
                   },
                   "身体状态": {
                     "default": {},
@@ -168,7 +173,7 @@
                   "身体锁定前状态": {
                     "default": {},
                     "description": "终端锁定时自动记录锁定前的物理状态，解锁时据此还原；AI 不主动修改",
-                    "$ref": "#/$defs/__schema13"
+                    "$ref": "#/$defs/__schema14"
                   },
                   "指令覆盖": {
                     "type": "object",
@@ -216,12 +221,12 @@
                   "敏感度": {
                     "default": 10,
                     "description": "敏感度：无硬上限，最低 1，决定刺激转化为快感值的速度",
-                    "$ref": "#/$defs/__schema14"
+                    "$ref": "#/$defs/__schema15"
                   },
                   "快感值": {
                     "default": 0,
                     "description": "快感值：0~120，100=高潮，100~120=过载临界区，120=过载",
-                    "$ref": "#/$defs/__schema15"
+                    "$ref": "#/$defs/__schema16"
                   },
                   "力量限制器": {
                     "default": true,
@@ -264,12 +269,12 @@
                   "冷却液": {
                     "default": 100,
                     "description": "冷却液余量：0~100，常态固定 100 的装饰性读数",
-                    "$ref": "#/$defs/__schema16"
+                    "$ref": "#/$defs/__schema17"
                   },
                   "润滑液": {
                     "default": 60,
                     "description": "润滑液储量：0~100，常规储量 60",
-                    "$ref": "#/$defs/__schema17"
+                    "$ref": "#/$defs/__schema18"
                   },
                   "实际着装": {
                     "default": {},
@@ -300,28 +305,28 @@
                             "时间": {
                               "default": "",
                               "description": "完整时间，格式 YYYY-MM-DD HH:MM；可以是早于剧情的前史",
-                              "$ref": "#/$defs/__schema18"
+                              "$ref": "#/$defs/__schema19"
                             },
                             "事件": {
                               "default": "",
                               "description": "该时间发生的关键事件，用该角色的视角记录",
-                              "$ref": "#/$defs/__schema19"
+                              "$ref": "#/$defs/__schema20"
                             },
                             "强度": {
                               "description": "记忆强度：0~100，越高越清晰、越不容易淡忘，面板按它排序",
-                              "$ref": "#/$defs/__schema20"
+                              "$ref": "#/$defs/__schema21"
                             },
                             "标签": {
                               "description": "记忆标签：日常 / 重要 / 约定 / 亲密 / 秘密 / 其他",
-                              "$ref": "#/$defs/__schema21"
+                              "$ref": "#/$defs/__schema22"
                             },
                             "钉选": {
                               "description": "钉选：为 true 时每轮强制注入；只由终端操作，AI 不改",
-                              "$ref": "#/$defs/__schema22"
+                              "$ref": "#/$defs/__schema23"
                             },
                             "楼层": {
                               "description": "来源楼层 id；0 表示没有对应楼层（手动新增、旧存档或提示词模式写入）",
-                              "$ref": "#/$defs/__schema23"
+                              "$ref": "#/$defs/__schema24"
                             }
                           }
                         }
@@ -335,7 +340,7 @@
                         "additionalProperties": {
                           "default": "",
                           "description": "事件",
-                          "$ref": "#/$defs/__schema24"
+                          "$ref": "#/$defs/__schema25"
                         }
                       }
                     ]
@@ -357,7 +362,7 @@
                   "崩溃原因": {
                     "default": "",
                     "description": "未响应/休眠时的原因说明，正常运行时为空字符串",
-                    "$ref": "#/$defs/__schema25"
+                    "$ref": "#/$defs/__schema26"
                   }
                 }
               }
@@ -485,11 +490,11 @@
       "type": "string"
     },
     "__schema1": {
-      "default": 1,
-      "type": "number"
+      "type": "string"
     },
     "__schema2": {
-      "type": "string"
+      "default": 1,
+      "type": "number"
     },
     "__schema3": {
       "type": "string"
@@ -516,12 +521,15 @@
       "type": "string"
     },
     "__schema11": {
-      "type": "number"
+      "type": "string"
     },
     "__schema12": {
       "type": "number"
     },
     "__schema13": {
+      "type": "number"
+    },
+    "__schema14": {
       "type": "object",
       "propertyNames": {
         "type": "string",
@@ -538,9 +546,6 @@
         "description": "该部位被锁定前的物理状态"
       }
     },
-    "__schema14": {
-      "type": "number"
-    },
     "__schema15": {
       "type": "number"
     },
@@ -551,16 +556,19 @@
       "type": "number"
     },
     "__schema18": {
-      "type": "string"
+      "type": "number"
     },
     "__schema19": {
       "type": "string"
     },
     "__schema20": {
+      "type": "string"
+    },
+    "__schema21": {
       "default": 50,
       "type": "number"
     },
-    "__schema21": {
+    "__schema22": {
       "default": "日常",
       "type": "string",
       "enum": [
@@ -572,18 +580,18 @@
         "其他"
       ]
     },
-    "__schema22": {
+    "__schema23": {
       "default": false,
       "type": "boolean"
     },
-    "__schema23": {
+    "__schema24": {
       "default": 0,
       "type": "number"
     },
-    "__schema24": {
+    "__schema25": {
       "type": "string"
     },
-    "__schema25": {
+    "__schema26": {
       "type": "string"
     }
   }

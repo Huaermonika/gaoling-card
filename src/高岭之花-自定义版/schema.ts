@@ -266,6 +266,7 @@ const 根Schema = z.object({
     .object({
       当前时间: z.string().default(''),
       当前地点: z.string().default(''),
+      设定: z.string().default('').describe('世界设定：时代、城市、机构、公开规则等，供自定义世界使用'),
       近期事务: z.record(z.string().describe('事务名'), z.string().describe('事务描述')).default({}),
     })
     .prefault({}),

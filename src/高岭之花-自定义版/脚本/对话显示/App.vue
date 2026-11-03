@@ -311,7 +311,7 @@
       </main>
     </template>
 
-    <OpeningWizard v-if="openingPending" :message-id="0" @done="openingPending = false" />
+    <OpeningFlow v-if="openingPending" :message-id="0" @done="openingPending = false" />
     <RoleDrawer
       v-if="roleDrawerOpen"
       @close="roleDrawerOpen = false"
@@ -338,7 +338,7 @@ import SystemPanel from '../../界面/控制终端/components/SystemPanel.vue';
 import SettingsPanel from './SettingsPanel.vue';
 import RoleManager from '../../界面/控制终端/components/RoleManager.vue';
 import RoleDrawer from '../../界面/控制终端/components/RoleDrawer.vue';
-import OpeningWizard from '../../开场/OpeningWizard.vue';
+import OpeningFlow from '../../开场/OpeningFlow.vue';
 import { isOpeningPending } from '../../开场/apply';
 import { getRoleArt } from '../../界面/控制终端/role-art';
 import { ensurePresetArt, getCardImage } from '../../界面/控制终端/role-art';
