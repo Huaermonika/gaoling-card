@@ -339,7 +339,7 @@ import SettingsPanel from './SettingsPanel.vue';
 import RoleManager from '../../界面/控制终端/components/RoleManager.vue';
 import RoleDrawer from '../../界面/控制终端/components/RoleDrawer.vue';
 import OpeningWizard from '../../开场/OpeningWizard.vue';
-import { isOpeningDone } from '../../开场/apply';
+import { isOpeningPending } from '../../开场/apply';
 import { getRoleArt } from '../../界面/控制终端/role-art';
 import { ensurePresetArt, getCardImage } from '../../界面/控制终端/role-art';
 import FlatConsole from './FlatConsole.vue';
@@ -404,8 +404,8 @@ function dismissSwitchHint() {
 }
 
 onMounted(() => {
-  // 首楼且尚未完成开场：接管首楼，显示开场设置
-  if (getCurrentMessageId() === 0 && !isOpeningDone()) openingPending.value = true;
+  // 首楼且仍是占位消息：接管首楼，显示开场设置
+  if (getCurrentMessageId() === 0 && isOpeningPending(0)) openingPending.value = true;
 
   // 千鹤的预设头像 = 当前角色卡卡图，只播种一次；玩家删掉后不再补
   if (store.data.角色['千鹤']) ensurePresetArt('千鹤', getCardImage());

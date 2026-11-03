@@ -13,6 +13,18 @@ export function isOpeningDone(): boolean {
   }
 }
 
+/** 只接管带占位标记的首楼，避免旧聊天打开时误弹开场设置 */
+export function isOpeningPending(messageId = 0): boolean {
+  if (isOpeningDone()) return false;
+  try {
+    const messages = getChatMessages(messageId);
+    const text = Array.isArray(messages) ? (messages[0]?.message ?? '') : '';
+    return text.includes('ch-opening-pending');
+  } catch {
+    return false;
+  }
+}
+
 export async function applyOpening(preset: OpeningPreset, messageId: number): Promise<void> {
   const data = klona(preset.data);
   await updateVariablesWith(vars => _.set(vars, 'stat_data', data), { type: 'message', message_id: messageId });
