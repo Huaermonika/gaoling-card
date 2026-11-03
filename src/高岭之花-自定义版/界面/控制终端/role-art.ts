@@ -21,8 +21,16 @@ function absolute(url: string): string {
   }
 }
 
-/** 当前角色卡卡图（绝对地址） */
+/** 当前角色卡卡图（绝对地址）：优先走酒馆助手的头像接口，失败再退回 SillyTavern */
 export function getCardImage(): string {
+  try {
+    if (typeof getCharAvatarPath === 'function') {
+      const path = getCharAvatarPath('current');
+      if (path) return absolute(path);
+    }
+  } catch {
+    /* 继续尝试 SillyTavern */
+  }
   try {
     const st = (globalThis as any).SillyTavern;
     const char = st?.characters?.[Number(st.characterId)];
