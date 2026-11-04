@@ -351,7 +351,7 @@ function toggleHeartbeat(): void {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 /* 间距跟随外层容器（手机与操作台 24px，PC 22px） */
 .settings-panel {
   display: flex;
