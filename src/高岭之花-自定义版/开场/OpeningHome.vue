@@ -8,18 +8,22 @@
           <div v-if="desktopSelected?.key !== 'notice'" class="oh-desk-shade" />
 
           <div v-if="desktopSelected?.key === 'notice'" class="oh-notice desk" @click="nextPage()">
-            <span class="oh-kicker">高岭之花</span>
+            <span class="oh-kicker">高岭之花 · AN-0170A</span>
             <h2>发布信息</h2>
             <div class="oh-notice-rows">
               <div><span>作者</span><b>Urumir乌璐米尔</b></div>
               <div><span>发布</span><b>类脑</b></div>
               <div><span>版本</span><b>V1.6.3 · 自定义版</b></div>
             </div>
-            <h3>内容提醒</h3>
-            <p>18+。含成人向、性描写、机械改造与支配描写。虚构作品，请勿模仿。</p>
-            <h3>免责声明</h3>
-            <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
-            <span class="oh-flip">点这里翻页 →</span>
+            <div class="oh-notice-block">
+              <h3>内容提醒</h3>
+              <p>18+。含成人向、性描写、机械改造与支配描写。虚构作品，请勿模仿。</p>
+            </div>
+            <div class="oh-notice-block">
+              <h3>免责声明</h3>
+              <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
+            </div>
+            <button class="oh-flip" type="button" @click.stop="nextPage">点这里翻页 →</button>
           </div>
 
           <template v-else>
@@ -68,18 +72,22 @@
           <div ref="pager" class="oh-pager" @scroll="onPagerScroll">
             <article v-for="page in pages" :key="page.key" class="oh-page" :class="page.key" @click="page.key === 'notice' && nextPage()">
               <div v-if="page.key === 'notice'" class="oh-notice">
-                <span class="oh-kicker">高岭之花</span>
+                <span class="oh-kicker">高岭之花 · AN-0170A</span>
                 <h2>发布信息</h2>
                 <div class="oh-notice-rows">
                   <div><span>作者</span><b>Urumir乌璐米尔</b></div>
                   <div><span>发布</span><b>类脑</b></div>
                   <div><span>版本</span><b>V1.6.3 · 自定义版</b></div>
                 </div>
-                <h3>内容提醒</h3>
-                <p>18+。含成人向、性描写、机械改造与支配描写。虚构作品，请勿模仿。</p>
-                <h3>免责声明</h3>
-                <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
-                <span class="oh-flip">点这里翻页 →</span>
+                <div class="oh-notice-block">
+                  <h3>内容提醒</h3>
+                  <p>18+。含成人向、性描写、机械改造与支配描写。虚构作品，请勿模仿。</p>
+                </div>
+                <div class="oh-notice-block">
+                  <h3>免责声明</h3>
+                  <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
+                </div>
+                <button class="oh-flip" type="button" @click.stop="nextPage">点这里翻页 →</button>
               </div>
 
               <template v-else>
@@ -902,6 +910,7 @@ function onPagerScroll() {
 function scrollToPage(index: number) {
   const element = pager.value;
   if (!element) return;
+  pageIndex.value = index;
   element.scrollTo({ left: index * element.clientWidth, behavior: 'smooth' });
 }
 
@@ -2462,28 +2471,35 @@ function nextPage() {
 .oh-notice {
   flex: 1;
   min-height: 0;
-  padding: 34px 26px calc(30px + env(safe-area-inset-bottom));
+  padding: 46px 54px calc(34px + env(safe-area-inset-bottom)) 30px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  justify-content: center;
+  gap: 6px;
   background: var(--bg);
   color: var(--text);
   overflow-y: auto;
 
   .oh-kicker {
     color: var(--accent);
-  }
-
-  h2 {
-    margin: 0;
-    font-family: Georgia, 'Songti SC', 'SimSun', serif;
-    font-size: 30px;
-    font-weight: 500;
+    font-size: 9px;
     letter-spacing: 3px;
   }
 
+  h2 {
+    margin: 4px 0 10px;
+    font-family: Georgia, 'Songti SC', 'SimSun', serif;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: 4px;
+  }
+}
+
+.oh-notice-block {
+  margin-top: 16px;
+
   h3 {
-    margin: 14px 0 0;
+    margin: 0 0 4px;
     font-size: 11px;
     letter-spacing: 2px;
     color: var(--muted);
@@ -2491,7 +2507,7 @@ function nextPage() {
 
   p {
     margin: 0;
-    font-size: 12px;
+    font-size: 12.5px;
     line-height: 1.9;
   }
 }
@@ -2499,17 +2515,16 @@ function nextPage() {
 .oh-notice-rows {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 7px;
 
   div {
     display: flex;
-    gap: 12px;
-    font-size: 12px;
+    gap: 14px;
+    font-size: 12.5px;
   }
 
   span {
-    flex: 0 0 40px;
+    flex: 0 0 38px;
     color: var(--muted);
   }
 
@@ -2519,13 +2534,20 @@ function nextPage() {
 }
 
 .oh-flip {
-  margin-top: auto;
-  align-self: flex-end;
-  padding-top: 18px;
-  font-size: 12px;
+  margin-top: 30px;
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 13px;
   letter-spacing: 1px;
   color: var(--accent);
   cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .oh-desk.notice .oh-desk-stage {
@@ -2536,14 +2558,9 @@ function nextPage() {
 .oh-notice.desk {
   flex: 0 1 auto;
   width: 100%;
-  max-width: 640px;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 0 56px 40px;
+  padding: 40px 0;
   background: transparent;
   overflow: visible;
-
-  h2 {
-    font-size: 40px;
-  }
-}
-</style>
+}</style>
