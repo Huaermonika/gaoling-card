@@ -49,7 +49,14 @@ function stripForPrompt(stat: unknown): Record<string, any> | null {
 // ===== 角色档案块 =====
 
 const PROFILE_TOTAL_LIMIT = 2400;
+export const PROFILE_CHAR_LIMIT = PROFILE_TOTAL_LIMIT;
 const OTHER_LIMIT = 400;
+
+/** 供设置页显示：变量快照实际注入的字符数 */
+export function promptSnapshotChars(stat: unknown): number {
+  const snapshot = stripForPrompt(stat);
+  return snapshot ? JSON.stringify(snapshot, null, 1).length : 0;
+}
 
 function clipText(value: unknown, limit: number): string {
   const text = String(value ?? '')

@@ -237,6 +237,26 @@
       <button class="mode-btn" type="button" @click="emit('open-gallery')">打开画廊</button>
     </div>
 
+    <div class="setting-group">
+      <div class="setting-title">上下文占用</div>
+      <div class="budget-row">
+        <span>角色档案</span>
+        <b>{{ profileChars }} / {{ PROFILE_CHAR_LIMIT }}</b>
+      </div>
+      <div class="budget-bar"><i :style="{ width: budgetPct(profileChars, PROFILE_CHAR_LIMIT) + '%' }" /></div>
+      <div class="budget-row">
+        <span>记忆</span>
+        <b>{{ memoryPlan.chars }} / {{ memoryInjectSettings.字符预算 }}</b>
+      </div>
+      <div class="budget-bar"><i :style="{ width: budgetPct(memoryPlan.chars, memoryInjectSettings.字符预算) + '%' }" /></div>
+      <p v-if="memoryPlan.omitted" class="setting-hint">有 {{ memoryPlan.omitted }} 条记忆没装进本轮注入。</p>
+      <div class="budget-row">
+        <span>变量快照</span>
+        <b>{{ snapshotChars }} 字符</b>
+      </div>
+      <p class="setting-hint">以上是字符数，不折算 token。</p>
+    </div>
+
     <div class="settings-sec"><span class="settings-sec-bar"></span>额外提示词</div>
     <ExtraPromptSettings />
 
@@ -250,6 +270,15 @@
 import ExtraPromptSettings from './ExtraPromptSettings.vue';
 import SubmodelSettings from './SubmodelSettings.vue';
 import SettingsExtras from './SettingsExtras.vue';
+import { computed } from 'vue';
+import { useDataStore } from '../../界面/控制终端/store';
+import {
+  buildMemoryPlan,
+  memoryInjectSettings,
+  readCognition,
+  readMemoryEntries,
+} from '../../界面/控制终端/memory-inject';
+import { buildCharacterProfile, promptSnapshotChars, PROFILE_CHAR_LIMIT } from './prompt-inject';
 import { heartbeatSettings, saveHeartbeatSettings } from '../../界面/控制终端/heartbeat';
 import {
   accentPresets,
@@ -304,6 +333,18 @@ withDefaults(
 );
 
 const emit = defineEmits<{ 'open-library': []; 'open-gallery': [] }>();
+
+const store = useDataStore();
+const profileChars = computed(() => buildCharacterProfile(store.data).length);
+const memoryPlan = computed(() =>
+  buildMemoryPlan(readMemoryEntries(store.data), undefined, readCognition(store.data)),
+);
+const snapshotChars = computed(() => promptSnapshotChars(store.data));
+
+function budgetPct(value: number, limit: number): number {
+  if (!limit) return 0;
+  return Math.min(100, Math.round((value / limit) * 100));
+}
 
 function toggleHeartbeat(): void {
   saveHeartbeatSettings({ 启用: !heartbeatSettings.启用 });
@@ -692,6 +733,38 @@ function toggleHeartbeat(): void {
 
 .switch.on .switch-knob {
   transform: translateX(18px);
+}
+
+.budget-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.budget-row b {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.budget-bar {
+  height: 4px;
+  margin-top: 5px;
+  border-radius: 999px;
+  background: var(--line-2);
+  overflow: hidden;
+}
+
+.budget-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
 }
 
 .font-sample {
