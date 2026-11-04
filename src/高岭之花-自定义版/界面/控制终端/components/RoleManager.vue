@@ -71,6 +71,28 @@
         </div>
         <p v-if="!filteredBackgrounds.length" class="rm-empty">没找到。</p>
       </section>
+
+      <section v-if="trash.length" class="rm-section">
+        <div class="rm-section-head">
+          <span>回收站 <small>{{ trash.length }}</small></span>
+        </div>
+        <p class="rm-hint">删除的角色先放这里，可以恢复。</p>
+        <div v-for="entry in trash" :key="entry.id" class="rm-card trash">
+          <span class="rm-avatar" :style="entry.art ? { backgroundImage: `url(&quot;${entry.art}&quot;)` } : {}">
+            <span v-if="!entry.art">{{ initialOf(entry.role?.档案?.姓名 || entry.id) }}</span>
+          </span>
+          <div class="rm-main">
+            <div class="rm-name">{{ entry.role?.档案?.姓名 || '未命名' }}</div>
+            <div class="rm-sub">
+              {{ entry.role?.类型 === '背景' ? '背景角色' : '受控角色' }} · {{ timeText(entry.deletedAt) }}
+            </div>
+          </div>
+          <div class="rm-ops">
+            <button class="rm-switch" type="button" @click="restoreTrash(entry)">恢复</button>
+            <button class="rm-icon danger" type="button" title="彻底删除" @click="purgeTrash(entry)">删</button>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- ===== 表单 ===== -->
@@ -187,14 +209,22 @@ import {
   规范化优先级,
 } from '../../../角色管理';
 import { fileToAvatar, getRoleArt, removeRoleArt, setRoleArt } from '../role-art';
+import { addToTrash, listTrash, removeFromTrash, type TrashEntry } from '../trash';
+import { klona } from 'klona';
 
 const props = defineProps<{ startCreate?: boolean }>();
 const emit = defineEmits<{ close: [] }>();
 
 const store = useDataStore();
 const artInput = ref<HTMLInputElement | null>(null);
+const trash = ref<TrashEntry[]>([]);
+
+function refreshTrash() {
+  trash.value = listTrash();
+}
 
 onMounted(() => {
+  refreshTrash();
   if (props.startCreate) startCreate('受控');
 });
 
@@ -442,9 +472,37 @@ function confirmDelete() {
     return;
   }
   删除角色(store.data, id);
+  const art = getRoleArt(id);
+  addToTrash(id, role, art);
+  trash.value = [{ id, role, art, deletedAt: Date.now() }, ...trash.value.filter(item => item.id !== id)];
   removeRoleArt(id);
   deleteTarget.value = null;
-  toastr.success('已删除');
+  toastr.success('已移入回收站');
+}
+
+function timeText(timestamp: number): string {
+  const date = new Date(timestamp);
+  const two = (value: number) => String(value).padStart(2, '0');
+  return `${date.getMonth() + 1}/${date.getDate()} ${two(date.getHours())}:${two(date.getMinutes())}`;
+}
+
+function restoreTrash(entry: TrashEntry) {
+  let id = entry.id;
+  if (store.data.角色[id]) id = `${id}_r${Date.now()}`;
+  (store.data.角色 as Record<string, any>)[id] = klona(entry.role);
+  if (entry.art) setRoleArt(id, entry.art);
+  else removeRoleArt(id);
+  if (!store.data.当前角色) store.data.当前角色 = id;
+  removeFromTrash(entry.id);
+  trash.value = trash.value.filter(item => item.id !== entry.id);
+  toastr.success('已恢复');
+}
+
+function purgeTrash(entry: TrashEntry) {
+  removeFromTrash(entry.id);
+  trash.value = trash.value.filter(item => item.id !== entry.id);
+  removeRoleArt(entry.id);
+  toastr.success('已彻底删除');
 }
 </script>
 
