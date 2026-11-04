@@ -1,2 +1,1 @@
-﻿<!-- ch-opening-pending -->
-终端正在初始化……
+<!-- ch-opening-pending -->​

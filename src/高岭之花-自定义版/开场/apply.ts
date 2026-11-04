@@ -20,10 +20,11 @@ export function isOpeningPending(messageId = 0): boolean {
     const messages = getChatMessages(messageId) as any;
     const first = Array.isArray(messages) ? messages[0] : messages;
     const text = String(first?.message ?? '');
-    // 酒馆可能把首楼的 HTML 注释剥掉，所以同时认可见的占位句
-    if (text.includes('ch-opening-pending') || text.includes('终端正在初始化')) return true;
-    // 极端情况下占位文本被清空：只有首楼、且没写过开场，也接管
-    return !text.trim() && getLastMessageId() === 0;
+    const visible = text.replace(/[\s\u200b]/g, '');
+    // 酒馆可能把首楼的 HTML 注释剥掉，零宽字符也不可见
+    if (visible.includes('ch-opening-pending')) return true;
+    if (!visible && getLastMessageId() === 0) return true;
+    return false;
   } catch {
     return false;
   }

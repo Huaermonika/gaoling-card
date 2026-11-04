@@ -221,8 +221,9 @@
 
       <footer class="oh-foot">
         <button class="oh-mini" type="button" @click="persist('draft')">先存着</button>
-        <span class="oh-hint">{{ form.姓名 ? '自动存。' : '名字填了才能开始。' }}</span>
-        <button class="oh-btn primary" type="button" :disabled="busy || !form.姓名.trim()" @click="startCustom">
+        <span class="oh-hint">{{ form.姓名 ? '自动存。' : libraryMode ? '名字填了才能保存。' : '名字填了才能开始。' }}</span>
+        <button v-if="libraryMode" class="oh-btn primary" type="button" :disabled="busy || !form.姓名.trim()" @click="saveLibrary">保存</button>
+        <button v-else class="oh-btn primary" type="button" :disabled="busy || !form.姓名.trim()" @click="startCustom">
           {{ busy ? '正在写入…' : '开始' }}
         </button>
       </footer>
@@ -231,8 +232,8 @@
     <!-- 管理 -->
     <template v-else>
       <header class="oh-sub-head">
-        <button class="oh-back" type="button" @click="goHome('manage')">← 返回</button>
-        <b>管理</b>
+        <button class="oh-back" type="button" @click="closeManage">← 返回</button>
+        <b>{{ libraryMode ? '角色库（局外）' : '管理' }}</b>
         <div class="oh-manage-actions">
           <button class="oh-mini" type="button" @click="importInput?.click()">导入</button>
           <button class="oh-mini" type="button" :disabled="!saved.length" @click="exportAll">导出全部</button>
@@ -314,10 +315,11 @@ import {
   type CharacterPreset,
 } from '../角色库/db';
 
-const props = defineProps<{ messageId: number; desktop?: boolean }>();
-const emit = defineEmits<{ done: [] }>();
+const props = defineProps<{ messageId: number; desktop?: boolean; mode?: 'opening' | 'library' }>();
+const emit = defineEmits<{ done: []; close: [] }>();
 
 const view = ref<'home' | 'official' | 'custom' | 'manage'>('home');
+const libraryMode = computed(() => props.mode === 'library');
 const pager = ref<HTMLElement | null>(null);
 const pageIndex = ref(0);
 const isDesktop = ref(props.desktop ?? false);
@@ -399,6 +401,10 @@ onMounted(async () => {
     });
   }
   await refreshLibrary();
+  if (libraryMode.value) {
+    returnPage.value = 'manage';
+    view.value = 'manage';
+  }
 });
 
 watch(
@@ -567,6 +573,14 @@ function goHome(page: 'custom' | 'official' | 'manage' = returnPage.value) {
   });
 }
 
+function closeManage() {
+  if (libraryMode.value) {
+    emit('close');
+    return;
+  }
+  goHome('manage');
+}
+
 function backFromCustom() {
   if (saveTimer) window.clearTimeout(saveTimer);
   if (hasContent()) void persist('draft');
@@ -626,6 +640,15 @@ async function copyOfficial() {
   } finally {
     busy.value = false;
   }
+}
+
+async function saveLibrary() {
+  if (!form.姓名.trim()) {
+    error.value = '名字没填。';
+    return;
+  }
+  await persist('ready');
+  toastr.success('已保存');
 }
 
 async function startOfficial() {  if (!activeOfficial.value) return;

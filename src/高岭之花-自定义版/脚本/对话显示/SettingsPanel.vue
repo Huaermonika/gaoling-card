@@ -225,6 +225,12 @@
       </div>
     </div>
 
+    <div class="setting-group">
+      <div class="setting-title">角色与开场</div>
+      <div class="setting-hint">局外角色库：编辑、导入导出。和终端里的角色引擎分开，不影响当前聊天。</div>
+      <button class="mode-btn" type="button" @click="emit('open-library')">打开角色库</button>
+    </div>
+
     <div class="settings-sec"><span class="settings-sec-bar"></span>额外提示词</div>
     <ExtraPromptSettings />
 
@@ -290,6 +296,8 @@ withDefaults(
     prettyHint: '关闭后回退酒馆原生正文显示，兼容特殊预设的正则',
   },
 );
+
+const emit = defineEmits<{ 'open-library': [] }>();
 
 function toggleHeartbeat(): void {
   saveHeartbeatSettings({ 启用: !heartbeatSettings.启用 });

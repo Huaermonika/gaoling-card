@@ -132,7 +132,7 @@
 
       <!-- ========== 设置视图 ========== -->
       <div v-else class="view settings-view">
-        <SettingsPanel :show-layout="true" title="外观设置" sub="为你的屏幕挑选一套风格" />
+        <SettingsPanel :show-layout="true" title="外观设置" sub="为你的屏幕挑选一套风格" @open-library="libraryOpen = true" />
       </div>
     </main>
 
@@ -187,7 +187,7 @@
         <!-- PC 设置面板 -->
         <template v-if="view === 'settings'">
           <div class="pc-settings">
-            <SettingsPanel :show-layout="true" title="外观与显示" sub="为你的屏幕挑选一套风格与形态" />
+            <SettingsPanel :show-layout="true" title="外观与显示" sub="为你的屏幕挑选一套风格与形态" @open-library="libraryOpen = true" />
           </div>
         </template>
 
@@ -312,6 +312,13 @@
     </template>
 
     <OpeningHome v-if="openingPending" :message-id="0" :desktop="!isMobile" @done="openingPending = false" />
+    <OpeningHome
+      v-if="libraryOpen"
+      :message-id="0"
+      :desktop="!isMobile"
+      mode="library"
+      @close="libraryOpen = false"
+    />
     <RoleDrawer
       v-if="roleDrawerOpen"
       @close="roleDrawerOpen = false"
@@ -386,6 +393,7 @@ const roles = computed(() => controllableRoles(store.data));
 const roleManagerOpen = ref(false);
 const roleManagerCreate = ref(false);
 const roleDrawerOpen = ref(false);
+const libraryOpen = ref(false);
 const openingPending = ref(false);
 const showSwitchHint = ref(false);
 let switchHintTimer: number | undefined;
