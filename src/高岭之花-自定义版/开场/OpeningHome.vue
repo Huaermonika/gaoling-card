@@ -344,14 +344,26 @@
         <button class="oh-btn primary" type="button" @click="openCustom()">新建角色</button>
       </footer>
 
-      <div v-if="importConflicts.length" class="oh-modal-mask" @click.self="cancelImport">
+      <div v-if="importPending.length" class="oh-modal-mask" @click.self="cancelImport">
         <div class="oh-modal">
-          <b>有同名角色</b>
-          <p>{{ importConflicts.join('、') }} 已经在库里。覆盖会替换档案、开场和世界。</p>
+          <b>导入 {{ importPending.length }} 个角色</b>
+          <p>确认后会写入角色库。</p>
+          <div class="oh-import-list">
+            <div v-for="record in importPending" :key="record.id" class="oh-import-row">
+              <span>{{ record.name || '未命名角色' }}</span>
+              <em v-if="importConflicts.includes(record.name)">同名</em>
+            </div>
+          </div>
+          <p v-if="importConflicts.length" class="oh-import-warn">
+            {{ importConflicts.join('、') }} 已在库里。覆盖会替换档案、开场和世界。
+          </p>
           <div class="oh-modal-actions">
             <button class="oh-mini" type="button" @click="cancelImport">取消</button>
-            <button class="oh-mini" type="button" @click="importSkip">跳过同名</button>
-            <button class="oh-btn primary" type="button" @click="importOverwrite">覆盖</button>
+            <template v-if="importConflicts.length">
+              <button class="oh-mini" type="button" @click="importSkip">跳过同名</button>
+              <button class="oh-btn primary" type="button" @click="importOverwrite">覆盖同名</button>
+            </template>
+            <button v-else class="oh-btn primary" type="button" @click="importConfirm">导入</button>
           </div>
         </div>
       </div>
@@ -850,10 +862,6 @@ async function onImport(event: Event) {
     const conflicts = records.filter(record =>
       saved.value.some(item => item.name.trim() === record.name.trim()),
     );
-    if (!conflicts.length) {
-      await saveImported(records, false);
-      return;
-    }
     importPending.value = records;
     importConflicts.value = conflicts.map(item => item.name);
     error.value = '';
@@ -891,6 +899,10 @@ function importOverwrite() {
 }
 
 function importSkip() {
+  void saveImported(importPending.value, false);
+}
+
+function importConfirm() {
   void saveImported(importPending.value, false);
 }
 
@@ -2667,7 +2679,45 @@ function nextPage() {
   padding: 40px 0;
   background: transparent;
   overflow: visible;
-}.oh-modal-mask {
+}.oh-import-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  margin-top: 10px;
+  overflow-y: auto;
+}
+
+.oh-import-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 11.5px;
+  color: var(--text);
+}
+
+.oh-import-row em {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 8.5px;
+  font-style: normal;
+}
+
+.oh-import-warn {
+  margin: 8px 0 0;
+  font-size: 10.5px;
+  line-height: 1.7;
+  color: #a34444;
+}
+
+.oh-modal-mask {
   position: absolute;
   inset: 0;
   z-index: 80;
