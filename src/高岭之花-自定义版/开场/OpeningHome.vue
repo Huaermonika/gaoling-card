@@ -3,13 +3,7 @@
     <button v-if="view === 'home' && !settingsOpen" class="oh-gear" type="button" @click="settingsOpen = true">设置</button>
 
     <div v-if="settingsOpen" class="oh-settings-layer">
-      <header class="oh-settings-head">
-        <button class="oh-back" type="button" @click="settingsOpen = false">← 返回</button>
-        <b>设置</b>
-      </header>
-      <div class="oh-settings-body">
-        <SettingsPanel :show-layout="true" title="显示设置" sub="开局页也能调" />
-      </div>
+      <OpeningSettings @close="settingsOpen = false" />
     </div>
     <!-- 首页：整页翻页 -->
     <template v-if="view === 'home'">
@@ -389,7 +383,7 @@ import customCover from '../页面图/自定义角色.jpg';
 import manageCover from '../页面图/管理.jpg';
 import { 千鹤开场, buildCustomOpening, defaultCustomText, previewText } from './presets';
 import { applyOpening } from './apply';
-import SettingsPanel from '../脚本/对话显示/SettingsPanel.vue';
+import OpeningSettings from './OpeningSettings.vue';
 import { fileToAvatar, getCardImage } from '../界面/控制终端/role-art';
 import {
   deleteCharacter,
@@ -412,7 +406,7 @@ const libraryMode = computed(() => props.mode === 'library');
 const pager = ref<HTMLElement | null>(null);
 const rootEl = ref<HTMLElement | null>(null);
 const pageIndex = ref(0);
-const isDesktop = ref(false);
+const isDesktop = ref(props.desktop ?? false);
 const returnPage = ref<'notice' | 'custom' | 'official' | 'manage'>('notice');
 const customReturn = ref<'home' | 'manage'>('home');
 const busy = ref(false);
@@ -530,8 +524,8 @@ const pageStyle: Record<string, string> = {
 };
 const coverStyle: Record<string, string> = {
   position: 'relative',
-  flex: '0 0 58%',
-  height: '58%',
+  flex: '0 0 62%',
+  height: '62%',
   backgroundSize: 'cover',
   backgroundPosition: 'center top',
   backgroundRepeat: 'no-repeat',
@@ -572,7 +566,7 @@ onMounted(() => {
 
 onMounted(async () => {
   const element = rootEl.value;
-  if (element && typeof ResizeObserver !== 'undefined') {
+  if (props.desktop === undefined && element && typeof ResizeObserver !== 'undefined') {
     const updateLayout = () => {
       isDesktop.value = element.clientWidth >= 760;
     };
@@ -593,6 +587,13 @@ onBeforeUnmount(() => {
   resizeObserver?.disconnect();
   resizeObserver = undefined;
 });
+
+watch(
+  () => props.desktop,
+  value => {
+    if (value !== undefined) isDesktop.value = value;
+  },
+);
 
 watch(
   form,

@@ -4,7 +4,7 @@
   <div
     v-else-if="openingPending"
     class="phone opening-mode"
-    :class="{ mobile: isMobile, desktop: !isMobile, elder: elderMode }"
+    :class="{ mobile: isMobile, desktop: !isMobile, elder: elderMode, 'opening-desktop': !isMobile }"
     :style="phoneVars"
   >
     <OpeningHome :message-id="0" :desktop="!isMobile" @done="openingPending = false" />
@@ -673,6 +673,11 @@ const dialogHtml = computed(() => context.message || '');
 }
 
 /* ===== 屏幕主体 ===== */
+.phone.opening-mode.opening-desktop {
+  width: min(760px, 100%);
+  max-width: 760px;
+}
+
 .opening-mode {
   display: flex;
   flex-direction: column;
