@@ -676,6 +676,14 @@ const dialogHtml = computed(() => context.message || '');
 .opening-mode {
   display: flex;
   flex-direction: column;
+  width: min(440px, 100%);
+  max-width: 440px;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  margin: 0 auto;
+  overflow: hidden;
 }
 
 .opening-mode :deep(.oh-overlay) {

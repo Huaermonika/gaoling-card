@@ -1,5 +1,5 @@
 <template>
-  <div class="oh-overlay">
+  <div ref="rootEl" class="oh-overlay">
     <button v-if="view === 'home' && !settingsOpen" class="oh-gear" type="button" @click="settingsOpen = true">设置</button>
 
     <div v-if="settingsOpen" class="oh-settings-layer">
@@ -383,7 +383,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import noticeCover from '../页面图/发布信息.webp';
 import customCover from '../页面图/自定义角色.jpg';
 import manageCover from '../页面图/管理.jpg';
@@ -410,8 +410,9 @@ const view = ref<'home' | 'official' | 'custom' | 'manage'>('home');
 const settingsOpen = ref(false);
 const libraryMode = computed(() => props.mode === 'library');
 const pager = ref<HTMLElement | null>(null);
+const rootEl = ref<HTMLElement | null>(null);
 const pageIndex = ref(0);
-const isDesktop = ref(props.desktop ?? false);
+const isDesktop = ref(false);
 const returnPage = ref<'notice' | 'custom' | 'official' | 'manage'>('notice');
 const customReturn = ref<'home' | 'manage'>('home');
 const busy = ref(false);
@@ -483,13 +484,19 @@ const saving = ref(false);
 let saveTimer: number | undefined;
 let suppressWatch = false;
 
+let resizeObserver: ResizeObserver | undefined;
+
 onMounted(async () => {
-  if (props.desktop === undefined) {
-    const media = window.matchMedia('(min-width: 900px)');
-    isDesktop.value = media.matches;
-    media.addEventListener('change', event => {
-      isDesktop.value = event.matches;
-    });
+  const element = rootEl.value;
+  if (element && typeof ResizeObserver !== 'undefined') {
+    const updateLayout = () => {
+      isDesktop.value = element.clientWidth >= 760;
+    };
+    updateLayout();
+    resizeObserver = new ResizeObserver(updateLayout);
+    resizeObserver.observe(element);
+  } else {
+    isDesktop.value = props.desktop ?? window.innerWidth >= 900;
   }
   await refreshLibrary();
   if (libraryMode.value) {
@@ -498,12 +505,10 @@ onMounted(async () => {
   }
 });
 
-watch(
-  () => props.desktop,
-  value => {
-    if (value !== undefined) isDesktop.value = value;
-  },
-);
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
+  resizeObserver = undefined;
+});
 
 watch(
   form,
