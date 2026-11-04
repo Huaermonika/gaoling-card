@@ -23,6 +23,7 @@
               <h3>免责声明</h3>
               <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
             </div>
+            <p class="oh-credit">背景：Homunculus / OpenGameArt（CC BY 3.0）</p>
           </div>
 
           <template v-else>
@@ -69,7 +70,14 @@
           <button class="oh-nav prev" type="button" :disabled="pageIndex === 0" @click="scrollToPage(pageIndex - 1)">‹</button>
 
           <div ref="pager" class="oh-pager" @scroll="onPagerScroll">
-            <article v-for="page in pages" :key="page.key" class="oh-page" :class="page.key" @click="page.key === 'notice' && nextPage()">
+            <article
+              v-for="page in pages"
+              :key="page.key"
+              class="oh-page"
+              :class="page.key"
+              :style="page.key === 'notice' && page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}"
+              @click="page.key === 'notice' && nextPage()"
+            >
               <div v-if="page.key === 'notice'" class="oh-notice">
                 <span class="oh-kicker">高岭之花 · AN-0170A</span>
                 <h2>发布信息</h2>
@@ -86,6 +94,7 @@
                   <h3>免责声明</h3>
                   <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
                 </div>
+                <p class="oh-credit">背景：Homunculus / OpenGameArt（CC BY 3.0）</p>
               </div>
 
               <template v-else>
@@ -340,6 +349,9 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import noticeCover from '../页面图/发布信息.webp';
+import customCover from '../页面图/自定义角色.jpg';
+import manageCover from '../页面图/管理.jpg';
 import { 千鹤开场, buildCustomOpening, defaultCustomText, previewText } from './presets';
 import { applyOpening } from './apply';
 import { fileToAvatar, getCardImage } from '../界面/控制终端/role-art';
@@ -838,7 +850,7 @@ const pages = computed(() => [
     line: '',
     meta: '',
     button: '',
-    cover: '',
+    cover: noticeCover,
     badge: '',
     action: () => nextPage(),
   },
@@ -849,7 +861,7 @@ const pages = computed(() => [
     line: '创建你的角色，书写你的故事。',
     meta: '挥毫开万象，落笔定山河。',
     button: '创建角色',
-    cover: '',
+    cover: customCover,
     badge: '',
     action: () => openCustom(),
   },
@@ -875,7 +887,7 @@ const pages = computed(() => [
     line: '角色/草稿/导入/导出/创意工坊',
     meta: '昨日遣画笥，今日发书簏',
     button: '打开',
-    cover: '',
+    cover: manageCover,
     badge: '',
     action: () => {
       returnPage.value = 'manage';
@@ -2466,6 +2478,58 @@ function nextPage() {
   }
 }
 
+.oh-page.manage .oh-cover {
+  filter: saturate(0.3) sepia(0.22) brightness(0.94);
+}
+
+.oh-page.manage .oh-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(245, 241, 232, 0.18);
+}
+
+.oh-page.custom .oh-cover {
+  filter: saturate(0.82) sepia(0.08);
+}
+
+.oh-page.notice {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+
+.oh-page.notice::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(245, 241, 232, 0.82), rgba(245, 241, 232, 0.94));
+  z-index: 0;
+}
+
+.oh-page.notice .oh-notice {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+.oh-desk.notice .oh-desk-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(245, 241, 232, 0.8), rgba(245, 241, 232, 0.94));
+  z-index: 0;
+}
+
+.oh-desk.notice .oh-notice.desk {
+  position: relative;
+  z-index: 1;
+}
+
+.oh-desk.notice .oh-desk-strip {
+  z-index: 2;
+}
+
 .oh-notice {
   flex: 1;
   min-height: 0;
@@ -2508,6 +2572,13 @@ function nextPage() {
     font-size: 12.5px;
     line-height: 1.9;
   }
+}
+
+.oh-credit {
+  margin-top: 8px;
+  font-size: 8.5px;
+  letter-spacing: 0.4px;
+  color: var(--muted);
 }
 
 .oh-notice-rows {
