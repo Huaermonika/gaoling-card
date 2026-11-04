@@ -2,8 +2,8 @@
   <div class="rm-overlay">
     <header class="rm-head">
       <button class="rm-back" type="button" @click="close">← 返回</button>
-      <div class="rm-title">{{ mode === 'list' ? '角色管理' : editingId ? '编辑角色' : '新建角色' }}</div>
-      <span class="rm-tag">{{ mode === 'list' ? 'ROLES' : 'PROFILE' }}</span>
+      <div class="rm-title">{{ mode === 'list' ? '角色引擎' : editingId ? '编辑角色' : '新建角色' }}</div>
+      <span class="rm-tag">{{ mode === 'list' ? '局内' : 'PROFILE' }}</span>
     </header>
 
     <!-- ===== 列表 ===== -->
