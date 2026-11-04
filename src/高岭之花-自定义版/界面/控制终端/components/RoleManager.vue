@@ -42,10 +42,10 @@
             </div>
           </div>
           <div class="rm-ops">
-            <button v-if="id !== store.data.当前角色" class="rm-switch" type="button" @click="switchTo(id)">切换</button>
-            <button class="rm-icon" type="button" title="另存为预设" @click="saveAsPreset(id)">存</button>
-            <button class="rm-icon" type="button" title="编辑" @click="startEdit(id)">编</button>
-            <button class="rm-icon danger" type="button" title="删除" @click="askDelete(id)">删</button>
+            <button v-if="id !== store.data.当前角色" class="rm-act accent" type="button" @click="switchTo(id)">切换</button>
+            <button class="rm-act" type="button" @click="saveAsPreset(id)">存为预设</button>
+            <button class="rm-act" type="button" @click="startEdit(id)">编辑</button>
+            <button class="rm-act danger" type="button" @click="askDelete(id)">删除</button>
           </div>
         </div>
         <p v-if="!filteredControllable.length" class="rm-empty">没找到。</p>
@@ -67,8 +67,8 @@
             <div class="rm-sub">{{ role.档案.关系 || '没写关系' }}</div>
           </div>
           <div class="rm-ops">
-            <button class="rm-icon" type="button" title="编辑" @click="startEdit(id)">编</button>
-            <button class="rm-icon danger" type="button" title="删除" @click="askDelete(id)">删</button>
+            <button class="rm-act" type="button" @click="startEdit(id)">编辑</button>
+            <button class="rm-act danger" type="button" @click="askDelete(id)">删除</button>
           </div>
         </div>
         <p v-if="!filteredBackgrounds.length" class="rm-empty">没找到。</p>
@@ -90,8 +90,8 @@
             </div>
           </div>
           <div class="rm-ops">
-            <button class="rm-switch" type="button" @click="restoreTrash(entry)">恢复</button>
-            <button class="rm-icon danger" type="button" title="彻底删除" @click="purgeTrash(entry)">删</button>
+            <button class="rm-act" type="button" @click="restoreTrash(entry)">恢复</button>
+            <button class="rm-act danger" type="button" @click="purgeTrash(entry)">彻底删除</button>
           </div>
         </div>
       </section>
@@ -973,6 +973,7 @@ function purgeTrash(entry: TrashEntry) {
 
 .rm-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   padding: 10px;
@@ -1046,8 +1047,39 @@ function purgeTrash(entry: TrashEntry) {
 .rm-ops {
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
+  justify-content: flex-end;
+  gap: 6px;
+  flex: 0 0 100%;
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.rm-act {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.rm-act:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rm-act.accent {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rm-act.danger:hover {
+  border-color: #c85a5a;
+  color: #a34444;
 }
 
 .rm-switch {
