@@ -11,6 +11,7 @@
       <div class="rm-search">
         <input v-model="search" type="search" placeholder="搜名字或型号" />
         <span>{{ filteredControllable.length + filteredBackgrounds.length }}</span>
+        <button class="rm-import" type="button" @click="openPresets">预设</button>
       </div>
 
       <section class="rm-section">
@@ -42,6 +43,7 @@
           </div>
           <div class="rm-ops">
             <button v-if="id !== store.data.当前角色" class="rm-switch" type="button" @click="switchTo(id)">切换</button>
+            <button class="rm-icon" type="button" title="另存为预设" @click="saveAsPreset(id)">存</button>
             <button class="rm-icon" type="button" title="编辑" @click="startEdit(id)">编</button>
             <button class="rm-icon danger" type="button" title="删除" @click="askDelete(id)">删</button>
           </div>
@@ -184,6 +186,32 @@
       </div>
     </div>
 
+    <div v-if="presetOpen" class="rm-mask" @click.self="presetOpen = false">
+      <div class="rm-confirm rm-preset">
+        <div class="rm-preset-head">
+          <b>从角色预设导入</b>
+          <button class="rm-icon" type="button" @click="presetOpen = false">×</button>
+        </div>
+        <p v-if="presetLoading" class="rm-preset-empty">读取中…</p>
+        <p v-else-if="!presets.length" class="rm-preset-empty">角色库还是空的。</p>
+        <div v-else class="rm-preset-list">
+          <div v-for="preset in presets" :key="preset.id" class="rm-preset-row">
+            <span
+              class="rm-preset-avatar"
+              :style="preset.avatar ? { backgroundImage: `url(&quot;${preset.avatar}&quot;)` } : {}"
+            >
+              <span v-if="!preset.avatar">{{ initialOf(preset.name) }}</span>
+            </span>
+            <div class="rm-preset-info">
+              <b>{{ preset.name }}</b>
+              <small>{{ preset.profile.型号 || '没型号' }} · {{ preset.openings.length }} 个开场</small>
+            </div>
+            <button class="rm-switch" type="button" @click="importPreset(preset)">导入</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div v-if="deleteTarget" class="rm-mask" @click.self="deleteTarget = null">
       <div class="rm-confirm">
         <b>删除「{{ deleteRole?.档案?.姓名 || '未命名' }}」？</b>
@@ -208,9 +236,11 @@ import {
   新建背景角色,
   规范化优先级,
 } from '../../../角色管理';
-import { fileToAvatar, getRoleArt, removeRoleArt, setRoleArt } from '../role-art';
+import { fileToAvatar, getCardImage, getRoleArt, removeRoleArt, setRoleArt } from '../role-art';
 import { addToTrash, listTrash, removeFromTrash, type TrashEntry } from '../trash';
 import { klona } from 'klona';
+import { listCharacters, makeCharacter, saveCharacter, type CharacterPreset } from '../../../角色库/db';
+import { defaultCustomText } from '../../../开场/presets';
 
 const props = defineProps<{ startCreate?: boolean }>();
 const emit = defineEmits<{ close: [] }>();
@@ -218,9 +248,85 @@ const emit = defineEmits<{ close: [] }>();
 const store = useDataStore();
 const artInput = ref<HTMLInputElement | null>(null);
 const trash = ref<TrashEntry[]>([]);
+const presetOpen = ref(false);
+const presets = ref<CharacterPreset[]>([]);
+const presetLoading = ref(false);
 
 function refreshTrash() {
   trash.value = listTrash();
+}
+
+async function openPresets() {
+  presetOpen.value = true;
+  presetLoading.value = true;
+  try {
+    presets.value = (await listCharacters()).filter(item => item.kind === 'controlled');
+  } catch (reason) {
+    toastr.error(reason instanceof Error ? reason.message : String(reason), '读取角色库失败');
+    presets.value = [];
+  } finally {
+    presetLoading.value = false;
+  }
+}
+
+function importPreset(preset: CharacterPreset) {
+  const name = preset.name.trim();
+  if (!name) return;
+  const duplicate = Object.values(store.data.角色).some(role => role.档案.姓名.trim() === name);
+  if (duplicate) {
+    toastr.error(`已有同名角色「${name}」。`);
+    return;
+  }
+  const id = 新建受控角色(store.data, preset.profile);
+  if (preset.avatar) setRoleArt(id, preset.avatar);
+  presetOpen.value = false;
+  toastr.success(`已导入「${name}」`);
+}
+
+async function saveAsPreset(id: string) {
+  const role = store.data.角色[id];
+  if (!role || role.类型 !== '受控') return;
+  const name = role.档案.姓名.trim();
+  if (!name) {
+    toastr.error('名字没填。');
+    return;
+  }
+  try {
+    const existing = (await listCharacters()).find(item => item.name.trim() === name);
+    const record = makeCharacter({
+      name,
+      avatar: getRoleArt(id) || getCardImage(),
+      profile: {
+        姓名: role.档案.姓名,
+        型号: role.档案.型号,
+        外观: role.档案.外观,
+        性格: role.档案.性格,
+        语言习惯: role.档案.语言习惯,
+        背景: role.档案.背景,
+        关系: role.档案.关系,
+        其他: role.档案.其他,
+      },
+      openings: [{ id: 'default', name: '默认开场', text: defaultCustomText(name) }],
+      world: {
+        持有者称呼: store.data.主角.持有者.称呼 || '你',
+        地点: store.data.世界.当前地点,
+        时间: store.data.世界.当前时间,
+        处境: role.状态.处境认知,
+        设定: store.data.世界.设定,
+      },
+      source: 'custom',
+      kind: 'controlled',
+      status: 'ready',
+    });
+    if (existing) {
+      record.id = existing.id;
+      record.createdAt = existing.createdAt;
+    }
+    await saveCharacter(record);
+    toastr.success(existing ? '已更新角色库里的同名预设' : '已保存到角色库');
+  } catch (reason) {
+    toastr.error(reason instanceof Error ? reason.message : String(reason), '保存失败');
+  }
 }
 
 onMounted(() => {
@@ -1030,5 +1136,95 @@ function purgeTrash(entry: TrashEntry) {
   padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
   margin-top: 4px;
   background: var(--bg);
+}
+.rm-import {
+  flex-shrink: 0;
+  padding: 7px 11px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 10.5px;
+  cursor: pointer;
+}
+
+.rm-import:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.rm-preset {
+  width: min(360px, 100%);
+}
+
+.rm-preset-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rm-preset-head b {
+  font-size: 13px;
+}
+
+.rm-preset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  margin-top: 10px;
+  overflow-y: auto;
+}
+
+.rm-preset-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.rm-preset-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background-color: var(--panel-2);
+  background-position: center;
+  background-size: cover;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rm-preset-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rm-preset-info b {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11.5px;
+}
+
+.rm-preset-info small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 9.5px;
+}
+
+.rm-preset-empty {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 11px;
 }
 </style>

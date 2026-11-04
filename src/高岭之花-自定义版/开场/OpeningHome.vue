@@ -335,7 +335,7 @@
         <div class="oh-section">导入导出</div>
         <div class="oh-help">
           <p>单角色导出是一个 JSON。导出全部会把整个库打成一个文件。</p>
-          <p>导入只添加，不改同名角色。</p>
+          <p>重名时会问是否覆盖。</p>
         </div>
         <p v-if="error" class="oh-error">{{ error }}</p>
       </div>
@@ -343,6 +343,18 @@
       <footer class="oh-foot">
         <button class="oh-btn primary" type="button" @click="openCustom()">新建角色</button>
       </footer>
+
+      <div v-if="importConflicts.length" class="oh-modal-mask" @click.self="cancelImport">
+        <div class="oh-modal">
+          <b>有同名角色</b>
+          <p>{{ importConflicts.join('、') }} 已经在库里。覆盖会替换档案、开场和世界。</p>
+          <div class="oh-modal-actions">
+            <button class="oh-mini" type="button" @click="cancelImport">取消</button>
+            <button class="oh-mini" type="button" @click="importSkip">跳过同名</button>
+            <button class="oh-btn primary" type="button" @click="importOverwrite">覆盖</button>
+          </div>
+        </div>
+      </div>
     </template>
   </div>
 </template>
@@ -400,6 +412,8 @@ function openingExcerpt(text: string) {
 }
 
 const saved = ref<CharacterPreset[]>([]);
+const importPending = ref<CharacterPreset[]>([]);
+const importConflicts = ref<string[]>([]);
 const manageTab = ref<'mine' | 'workshop'>('mine');
 /** 角色库只管理玩家自定义来源；官方、背景角色不在这里 */
 const mine = computed(() =>
@@ -833,13 +847,51 @@ async function onImport(event: Event) {
       raw?.kind === 'gaoling.collection'
         ? parseCollectionFile(text).map(item => makeCharacter(item))
         : [makeCharacter(parseCharacterFile(text))];
-    for (const record of records) await saveCharacter(record);
-    await refreshLibrary();
+    const conflicts = records.filter(record =>
+      saved.value.some(item => item.name.trim() === record.name.trim()),
+    );
+    if (!conflicts.length) {
+      await saveImported(records, false);
+      return;
+    }
+    importPending.value = records;
+    importConflicts.value = conflicts.map(item => item.name);
     error.value = '';
-    toastr.success(`已导入 ${records.length} 个角色`);
   } catch (reason) {
     error.value = reason instanceof Error ? reason.message : String(reason);
   }
+}
+
+async function saveImported(records: CharacterPreset[], overwrite: boolean) {
+  const existing = new Map(saved.value.map(item => [item.name.trim(), item]));
+  let count = 0;
+  for (const record of records) {
+    const match = existing.get(record.name.trim());
+    if (match) {
+      if (!overwrite) continue;
+      record.id = match.id;
+      record.createdAt = match.createdAt;
+    }
+    await saveCharacter(record);
+    count += 1;
+  }
+  importPending.value = [];
+  importConflicts.value = [];
+  await refreshLibrary();
+  toastr.success(count ? `已导入 ${count} 个角色` : '没有导入任何角色');
+}
+
+function cancelImport() {
+  importPending.value = [];
+  importConflicts.value = [];
+}
+
+function importOverwrite() {
+  void saveImported(importPending.value, true);
+}
+
+function importSkip() {
+  void saveImported(importPending.value, false);
 }
 
 const pages = computed(() => [
@@ -2615,4 +2667,43 @@ function nextPage() {
   padding: 40px 0;
   background: transparent;
   overflow: visible;
-}</style>
+}.oh-modal-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(30, 25, 20, 0.35);
+}
+
+.oh-modal {
+  width: min(330px, 100%);
+  padding: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px -24px rgba(40, 30, 20, 0.5);
+}
+
+.oh-modal b {
+  display: block;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.oh-modal p {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.oh-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+</style>
