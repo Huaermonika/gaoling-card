@@ -9,6 +9,11 @@
     </div>
     <p class="panel-desc">该角色当前的整体运行概况</p>
 
+    <div v-if="varUpdateState.status === 'fail'" class="var-fail">
+      <span class="var-fail-text">{{ varUpdateState.message }}</span>
+      <button class="var-retry" type="button" @click="retryVariableUpdate">重试</button>
+    </div>
+
     <!-- 核心状态 -->
     <div class="core-row">
       <div class="core-cell" :class="awareClass">
@@ -198,6 +203,7 @@
 <script setup lang="ts">
 import BodyDiagram from './BodyDiagram.vue';
 import { ref, reactive } from 'vue';
+import { varUpdateState, retryVariableUpdate } from '../../../脚本/对话显示/submodel';
 import { POWER_STATES, useDataStore, applyPower, powerStateIndex, pushSystemLog, startReboot } from '../store';
 import type { PowerState } from '../store';
 import { uiState } from '../ui-state';
@@ -575,6 +581,36 @@ function reboot() {
   display: flex;
   justify-content: flex-end;
   gap: 6px;
+}
+
+.var-fail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: color-mix(in srgb, #c85a5a 12%, var(--panel));
+  border: 1px solid color-mix(in srgb, #c85a5a 40%, var(--line));
+  border-radius: 8px;
+}
+
+.var-fail-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #a34444;
+}
+
+.var-retry {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border: 1px solid #c85a5a;
+  border-radius: 999px;
+  background: transparent;
+  color: #a34444;
+  font-family: inherit;
+  font-size: 10.5px;
+  cursor: pointer;
 }
 
 /* ===== 认知摘要 ===== */

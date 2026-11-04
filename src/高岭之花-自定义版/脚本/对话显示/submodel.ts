@@ -128,9 +128,14 @@ function applyPatch(obj: Record<string, any>, patches: PatchOp[]): void {
 
 // ==================== OpenAI 兼容调用 ====================
 
-async function callSubmodel(system: string, user: string): Promise<string | null> {
+interface SubmodelResult {
+  text: string | null;
+  error?: string;
+}
+
+async function callSubmodelDetailed(system: string, user: string): Promise<SubmodelResult> {
   const cfg = submodelConfig;
-  if (!cfg.enabled || !cfg.endpoint || !cfg.apiKey || !cfg.model) return null;
+  if (!cfg.enabled || !cfg.endpoint || !cfg.apiKey || !cfg.model) return { text: null };
   const base = cfg.endpoint.replace(/\/+$/, '');
   const url = base.endsWith('/chat/completions') ? base : `${base}/chat/completions`;
   try {
@@ -146,12 +151,19 @@ async function callSubmodel(system: string, user: string): Promise<string | null
         ],
       }),
     });
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      const tail = await resp.text().catch(() => '');
+      return { text: null, error: `HTTP ${resp.status}${tail ? `：${clip(tail, 120)}` : ''}` };
+    }
     const json = await resp.json();
-    return json?.choices?.[0]?.message?.content ?? null;
-  } catch {
-    return null;
+    return { text: json?.choices?.[0]?.message?.content ?? null };
+  } catch (reason) {
+    return { text: null, error: reason instanceof Error ? reason.message : String(reason) };
   }
+}
+
+async function callSubmodel(system: string, user: string): Promise<string | null> {
+  return (await callSubmodelDetailed(system, user)).text;
 }
 
 // ==================== 副模型配置检测 ====================
@@ -344,6 +356,23 @@ function readStat(): Record<string, any> {
 
 // ==================== 职责 1 · 变量更新 ====================
 
+export const varUpdateState = reactive<{
+  status: 'idle' | 'ok' | 'fail';
+  message: string;
+  at: number;
+}>({ status: 'idle', message: '', at: 0 });
+
+function failVariableUpdate(message: string) {
+  varUpdateState.status = 'fail';
+  varUpdateState.message = message;
+  varUpdateState.at = Date.now();
+  toastr.error(message, '变量更新失败', { timeOut: 8000, closeButton: true });
+}
+
+export function retryVariableUpdate(): Promise<void> {
+  return runVariableUpdate();
+}
+
 const VAR_UPDATE_SYSTEM = `你是角色卡「高岭之花」的变量维护副模型。根据对话内容，输出需要修正的变量变更，格式为 JSONPatch 数组。
 
 规则：
@@ -369,6 +398,8 @@ function variableSnapshot(stat: Record<string, any>): Record<string, any> {
 }
 
 async function runVariableUpdate(): Promise<void> {
+  if (!submodelConfig.enabled || !submodelConfig.varUpdate) return;
+
   const stat = readStat();
   const snapshot = variableSnapshot(stat);
   const last = getLastMessageId();
@@ -378,18 +409,39 @@ async function runVariableUpdate(): Promise<void> {
     .join('\n');
 
   const user = `当前变量（不含记忆/系统日志）：\n${JSON.stringify(snapshot, null, 1)}\n\n最近对话：\n${recent}\n\n输出 JSONPatch 数组。`;
-  const text = await callSubmodel(VAR_UPDATE_SYSTEM, user);
-  if (!text) return;
+  const response = await callSubmodelDetailed(VAR_UPDATE_SYSTEM, user);
+  if (response.error) {
+    failVariableUpdate(`第 ${last} 楼：${response.error}`);
+    return;
+  }
+  if (!response.text) {
+    failVariableUpdate(`第 ${last} 楼：副模型返回为空`);
+    return;
+  }
 
-  const patches = parseJson<unknown[]>(text);
-  if (!patches) return;
+  const patches = parseJson<unknown[]>(response.text);
+  if (!patches || !Array.isArray(patches)) {
+    failVariableUpdate(`第 ${last} 楼：返回不是 JSON 数组`);
+    return;
+  }
 
-  const next = JSON.parse(JSON.stringify(stat)) as Record<string, any>;
-  applyPatch(next, patches as PatchOp[]);
+  try {
+    const next = JSON.parse(JSON.stringify(stat)) as Record<string, any>;
+    applyPatch(next, patches as PatchOp[]);
 
-  const result = Schema.safeParse(next);
-  if (!result.success) return;
-  updateVariablesWith(vars => _.set(vars, 'stat_data', result.data), STAT_ROOT);
+    const result = Schema.safeParse(next);
+    if (!result.success) {
+      const issue = result.error.issues[0];
+      const field = issue?.path.join('.') || '未知字段';
+      failVariableUpdate(`第 ${last} 楼：${field} 校验失败`);
+      return;
+    }
+    updateVariablesWith(vars => _.set(vars, 'stat_data', result.data), STAT_ROOT);
+    varUpdateState.status = 'ok';
+    varUpdateState.message = '';
+  } catch (reason) {
+    failVariableUpdate(`第 ${last} 楼：${reason instanceof Error ? reason.message : String(reason)}`);
+  }
 }
 
 // ==================== 记忆条目读取 ====================
