@@ -126,6 +126,7 @@
       </div>
 
       <footer class="oh-foot">
+        <button class="oh-mini" type="button" :disabled="busy" @click="copyOfficial">复制为自定义</button>
         <button class="oh-btn primary big" type="button" :disabled="busy" @click="startOfficial">
           {{ busy ? '正在写入…' : '开始' }}
         </button>
@@ -580,8 +581,54 @@ function editCharacter(record: CharacterPreset) {
   openCustom(record);
 }
 
-async function startOfficial() {
-  if (!activeOfficial.value) return;
+async function copyOfficial() {
+  const profile = officialProfile.value as any;
+  const world = (officialData.世界 ?? {}) as any;
+  const base = presets[0];
+  if (!base) return;
+  busy.value = true;
+  try {
+    const record = makeCharacter({
+      name: `${profile.姓名 || '白峰千鹤'} 副本`,
+      avatar: cardImage.value,
+      profile: {
+        姓名: profile.姓名 || '白峰千鹤',
+        型号: profile.型号 || '',
+        外观: profile.外观 || '',
+        性格: profile.性格 || '',
+        语言习惯: profile.语言习惯 || '',
+        背景: profile.背景 || '',
+        关系: profile.关系 || '',
+        其他: profile.其他 || '',
+      },
+      openings: [
+        {
+          id: base.id,
+          name: base.name,
+          text: base.text.replace(/<initvar>[\s\S]*?<\/initvar>/g, '').trim(),
+        },
+      ],
+      world: {
+        持有者称呼: '你',
+        地点: world.当前地点 || '',
+        时间: world.当前时间 || '',
+        处境: '',
+        设定: world.设定 || '',
+      },
+      source: 'official-copy',
+      kind: 'controlled',
+      status: 'draft',
+    });
+    await saveCharacter(record);
+    openCustom(record);
+  } catch (reason) {
+    error.value = reason instanceof Error ? reason.message : String(reason);
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function startOfficial() {  if (!activeOfficial.value) return;
   busy.value = true;
   try {
     await applyOpening(activeOfficial.value, props.messageId);
