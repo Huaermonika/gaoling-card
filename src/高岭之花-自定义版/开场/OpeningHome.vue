@@ -1015,7 +1015,7 @@ function nextPage() {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .oh-overlay {
   position: absolute;
   inset: 0;
