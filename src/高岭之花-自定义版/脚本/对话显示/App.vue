@@ -678,10 +678,10 @@ const dialogHtml = computed(() => context.message || '');
   flex-direction: column;
   width: min(440px, 100%);
   max-width: 440px;
-  height: 100vh;
-  height: 100dvh;
-  max-height: 100vh;
-  max-height: 100dvh;
+  height: min(760px, 90vh);
+  height: min(760px, 90dvh);
+  max-height: min(760px, 90vh);
+  max-height: min(760px, 90dvh);
   margin: 0 auto;
   overflow: hidden;
 }
