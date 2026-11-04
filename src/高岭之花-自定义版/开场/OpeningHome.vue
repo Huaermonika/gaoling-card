@@ -3,27 +3,44 @@
     <!-- 首页：整页翻页 -->
     <template v-if="view === 'home'">
       <!-- 桌面：整幅主画面 + 底部选择条 -->
-      <div v-if="isDesktop" class="oh-desk" :class="{ 'no-cover': !desktopSelected?.cover }">
+      <div v-if="isDesktop" class="oh-desk" :class="{ 'no-cover': !desktopSelected?.cover, notice: desktopSelected?.key === 'notice' }">
         <div class="oh-desk-stage" :style="desktopSelected?.cover ? { backgroundImage: `url(&quot;${desktopSelected.cover}&quot;)` } : {}">
-          <div class="oh-desk-shade" />
+          <div v-if="desktopSelected?.key !== 'notice'" class="oh-desk-shade" />
 
-          <div v-if="!desktopSelected?.cover" class="oh-desk-type">
-            <span>{{ desktopSelected?.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
-            <b>{{ desktopSelected?.key === 'custom' ? '你的角色' : '角色库' }}</b>
-            <small>{{ desktopSelected?.key === 'custom' ? '创建后可上传立绘' : '你写过的角色' }}</small>
+          <div v-if="desktopSelected?.key === 'notice'" class="oh-notice desk" @click="nextPage()">
+            <span class="oh-kicker">高岭之花</span>
+            <h2>发布信息</h2>
+            <div class="oh-notice-rows">
+              <div><span>作者</span><b>Urumir乌璐米尔</b></div>
+              <div><span>发布</span><b>类脑</b></div>
+              <div><span>版本</span><b>V1.6.3 · 自定义版</b></div>
+            </div>
+            <h3>内容提醒</h3>
+            <p>18+。含成人向、性描写、机械改造与支配描写。虚构作品，请勿模仿。</p>
+            <h3>免责声明</h3>
+            <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
+            <span class="oh-flip">点这里翻页 →</span>
           </div>
 
-          <span v-if="desktopSelected?.badge" class="oh-badge">{{ desktopSelected.badge }}</span>
+          <template v-else>
+            <div v-if="!desktopSelected?.cover" class="oh-desk-type">
+              <span>{{ desktopSelected?.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
+              <b>{{ desktopSelected?.key === 'custom' ? '你的角色' : '角色库' }}</b>
+              <small>{{ desktopSelected?.key === 'custom' ? '创建后可上传立绘' : '你写过的角色' }}</small>
+            </div>
 
-          <div class="oh-desk-copy">
-            <span class="oh-kicker">{{ desktopSelected?.kicker }}</span>
-            <h2>{{ desktopSelected?.title }}</h2>
-            <p>{{ desktopSelected?.line }}</p>
-            <span class="oh-page-meta">{{ desktopSelected?.meta }}</span>
-            <button class="oh-btn primary big" type="button" @click="desktopSelected?.action()">
-              {{ desktopSelected?.button }}
-            </button>
-          </div>
+            <span v-if="desktopSelected?.badge" class="oh-badge">{{ desktopSelected.badge }}</span>
+
+            <div class="oh-desk-copy">
+              <span class="oh-kicker">{{ desktopSelected?.kicker }}</span>
+              <h2>{{ desktopSelected?.title }}</h2>
+              <p>{{ desktopSelected?.line }}</p>
+              <span class="oh-page-meta">{{ desktopSelected?.meta }}</span>
+              <button class="oh-btn primary big" type="button" @click="desktopSelected?.action()">
+                {{ desktopSelected?.button }}
+              </button>
+            </div>
+          </template>
 
           <div class="oh-desk-strip">
             <button
@@ -49,23 +66,40 @@
           <button class="oh-nav prev" type="button" :disabled="pageIndex === 0" @click="scrollToPage(pageIndex - 1)">‹</button>
 
           <div ref="pager" class="oh-pager" @scroll="onPagerScroll">
-            <article v-for="page in pages" :key="page.key" class="oh-page" :class="page.key">
-              <div class="oh-cover" :style="page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}">
-                <div v-if="!page.cover" class="oh-placeholder" :class="page.key">
-                  <span class="oh-ph-label">{{ page.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
-                  <b>{{ page.key === 'custom' ? '你的角色' : '角色库' }}</b>
-                  <small>{{ page.key === 'custom' ? '创建后可上传立绘' : '草稿 · 导入导出' }}</small>
+            <article v-for="page in pages" :key="page.key" class="oh-page" :class="page.key" @click="page.key === 'notice' && nextPage()">
+              <div v-if="page.key === 'notice'" class="oh-notice">
+                <span class="oh-kicker">高岭之花</span>
+                <h2>发布信息</h2>
+                <div class="oh-notice-rows">
+                  <div><span>作者</span><b>Urumir乌璐米尔</b></div>
+                  <div><span>发布</span><b>类脑</b></div>
+                  <div><span>版本</span><b>V1.6.3 · 自定义版</b></div>
                 </div>
-                <span v-if="page.badge" class="oh-badge">{{ page.badge }}</span>
+                <h3>内容提醒</h3>
+                <p>18+。含成人向、性描写、机械改造与支配描写。虚构作品，请勿模仿。</p>
+                <h3>免责声明</h3>
+                <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
+                <span class="oh-flip">点这里翻页 →</span>
               </div>
 
-              <div class="oh-page-caption">
-                <span class="oh-kicker">{{ page.kicker }}</span>
-                <h2>{{ page.title }}</h2>
-                <p>{{ page.line }}</p>
-                <span class="oh-page-meta">{{ page.meta }}</span>
-                <button class="oh-btn primary big" type="button" @click="page.action">{{ page.button }}</button>
-              </div>
+              <template v-else>
+                <div class="oh-cover" :style="page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}">
+                  <div v-if="!page.cover" class="oh-placeholder" :class="page.key">
+                    <span class="oh-ph-label">{{ page.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
+                    <b>{{ page.key === 'custom' ? '你的角色' : '角色库' }}</b>
+                    <small>{{ page.key === 'custom' ? '创建后可上传立绘' : '草稿 · 导入导出' }}</small>
+                  </div>
+                  <span v-if="page.badge" class="oh-badge">{{ page.badge }}</span>
+                </div>
+
+                <div class="oh-page-caption">
+                  <span class="oh-kicker">{{ page.kicker }}</span>
+                  <h2>{{ page.title }}</h2>
+                  <p>{{ page.line }}</p>
+                  <span class="oh-page-meta">{{ page.meta }}</span>
+                  <button class="oh-btn primary big" type="button" @click="page.action">{{ page.button }}</button>
+                </div>
+              </template>
             </article>
           </div>
 
@@ -323,7 +357,7 @@ const libraryMode = computed(() => props.mode === 'library');
 const pager = ref<HTMLElement | null>(null);
 const pageIndex = ref(0);
 const isDesktop = ref(props.desktop ?? false);
-const returnPage = ref<'custom' | 'official' | 'manage'>('custom');
+const returnPage = ref<'notice' | 'custom' | 'official' | 'manage'>('notice');
 const customReturn = ref<'home' | 'manage'>('home');
 const busy = ref(false);
 const error = ref('');
@@ -562,7 +596,7 @@ function openCustom(record?: CharacterPreset) {
   }, 0);
 }
 
-function goHome(page: 'custom' | 'official' | 'manage' = returnPage.value) {
+function goHome(page: 'notice' | 'custom' | 'official' | 'manage' = returnPage.value) {
   view.value = 'home';
   desktopPage.value = page;
   const index = Math.max(0, pages.value.findIndex(item => item.key === page));
@@ -792,6 +826,17 @@ async function onImport(event: Event) {
 
 const pages = computed(() => [
   {
+    key: 'notice',
+    kicker: 'Notice',
+    title: '发布信息',
+    line: '',
+    meta: '',
+    button: '',
+    cover: '',
+    badge: '',
+    action: () => nextPage(),
+  },
+  {
     key: 'custom',
     kicker: 'Custom',
     title: '自定义角色',
@@ -834,7 +879,7 @@ const pages = computed(() => [
   },
 ]);
 
-const desktopPage = ref<'custom' | 'official' | 'manage'>('custom');
+const desktopPage = ref<'notice' | 'custom' | 'official' | 'manage'>('notice');
 const desktopSelected = computed(() => pages.value.find(page => page.key === desktopPage.value) ?? pages.value[0]);
 
 watch(isDesktop, desktop => {
@@ -858,6 +903,14 @@ function scrollToPage(index: number) {
   const element = pager.value;
   if (!element) return;
   element.scrollTo({ left: index * element.clientWidth, behavior: 'smooth' });
+}
+
+function nextPage() {
+  if (isDesktop.value) {
+    desktopPage.value = 'custom';
+    return;
+  }
+  scrollToPage(Math.min(pages.value.length - 1, pageIndex.value + 1));
 }
 </script>
 
@@ -2406,4 +2459,91 @@ function scrollToPage(index: number) {
   }
 }
 
+.oh-notice {
+  flex: 1;
+  min-height: 0;
+  padding: 34px 26px calc(30px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg);
+  color: var(--text);
+  overflow-y: auto;
+
+  .oh-kicker {
+    color: var(--accent);
+  }
+
+  h2 {
+    margin: 0;
+    font-family: Georgia, 'Songti SC', 'SimSun', serif;
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: 3px;
+  }
+
+  h3 {
+    margin: 14px 0 0;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.9;
+  }
+}
+
+.oh-notice-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+
+  div {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+  }
+
+  span {
+    flex: 0 0 40px;
+    color: var(--muted);
+  }
+
+  b {
+    font-weight: 500;
+  }
+}
+
+.oh-flip {
+  margin-top: auto;
+  align-self: flex-end;
+  padding-top: 18px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.oh-desk.notice .oh-desk-stage {
+  background: var(--bg);
+  justify-content: center;
+}
+
+.oh-notice.desk {
+  flex: 0 1 auto;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 56px 40px;
+  background: transparent;
+  overflow: visible;
+
+  h2 {
+    font-size: 40px;
+  }
+}
 </style>
