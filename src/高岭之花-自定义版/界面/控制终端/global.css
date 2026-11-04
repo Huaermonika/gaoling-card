@@ -2,6 +2,36 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--line-2) 78%, var(--accent));
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+@media (pointer: coarse) {
+  * {
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 :root {

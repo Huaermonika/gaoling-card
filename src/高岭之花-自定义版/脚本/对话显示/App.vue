@@ -1555,3 +1555,45 @@ const dialogHtml = computed(() => context.message || '');
   font-weight: 700;
 }
 </style>
+
+<style>
+.phone,
+.phone * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+
+.phone::-webkit-scrollbar,
+.phone ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.phone::-webkit-scrollbar-track,
+.phone ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.phone::-webkit-scrollbar-thumb,
+.phone ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--line-2) 78%, var(--accent));
+  border-radius: 999px;
+}
+
+.phone::-webkit-scrollbar-thumb:hover,
+.phone ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+@media (pointer: coarse) {
+  .phone,
+  .phone * {
+    scrollbar-width: none;
+  }
+
+  .phone::-webkit-scrollbar,
+  .phone ::-webkit-scrollbar {
+    display: none;
+  }
+}
+</style>
