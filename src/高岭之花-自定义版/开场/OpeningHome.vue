@@ -23,7 +23,6 @@
               <h3>免责声明</h3>
               <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
             </div>
-            <button class="oh-flip" type="button" @click.stop="nextPage">点这里翻页 →</button>
           </div>
 
           <template v-else>
@@ -87,7 +86,6 @@
                   <h3>免责声明</h3>
                   <p>本作与现实人物、团体无关。仅发布于类脑，授权 Li2KN 搬运；禁止盗用、商用、二改。</p>
                 </div>
-                <button class="oh-flip" type="button" @click.stop="nextPage">点这里翻页 →</button>
               </div>
 
               <template v-else>
@@ -2530,23 +2528,6 @@ function nextPage() {
 
   b {
     font-weight: 500;
-  }
-}
-
-.oh-flip {
-  margin-top: 30px;
-  align-self: flex-start;
-  border: 0;
-  background: transparent;
-  padding: 0;
-  font-family: inherit;
-  font-size: 13px;
-  letter-spacing: 1px;
-  color: var(--accent);
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
   }
 }
 
