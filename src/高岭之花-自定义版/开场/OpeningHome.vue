@@ -487,15 +487,15 @@ let suppressWatch = false;
 let resizeObserver: ResizeObserver | undefined;
 
 const CRITICAL_CSS = `
-.oh-overlay{position:absolute;inset:0;z-index:70;background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow:hidden}
-.oh-page{flex:0 0 calc(100% - 6px);scroll-snap-align:start;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden;min-height:0}
-.oh-cover{position:relative;flex:1;min-height:0;background-size:cover;background-position:center top;display:flex;align-items:center;justify-content:center}
-.oh-page-caption{display:flex;flex-direction:column;gap:8px;padding:16px 20px 20px}
-.oh-btn{display:flex;align-items:center;justify-content:center;border:none;border-radius:10px;background:#cf8f97;color:#fff;font-family:inherit;font-size:12px;padding:10px 16px;cursor:pointer}
-.oh-btn.primary.big{width:100%;padding:13px 16px;font-size:13px;font-weight:600}
-.oh-settings-layer{position:absolute;inset:0;z-index:120;display:flex;flex-direction:column;background:var(--bg)}
-.oh-settings-body{flex:1;min-height:0;overflow-y:auto}
-.settings-panel{display:flex;flex-direction:column;gap:12px;padding:16px}
+.oh-overlay{position:absolute!important;inset:0!important;z-index:70!important;background:var(--bg)!important;color:var(--text)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.oh-page{flex:0 0 calc(100% - 6px)!important;scroll-snap-align:start!important;display:flex!important;flex-direction:column!important;border:1px solid var(--line)!important;border-radius:16px!important;background:var(--panel)!important;overflow:hidden!important;min-height:0!important}
+.oh-cover{position:relative!important;flex:1!important;min-height:0!important;background-size:cover!important;background-position:center top!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.oh-page-caption{display:flex!important;flex-direction:column!important;gap:8px!important;padding:16px 20px 20px!important}
+.oh-btn{display:flex!important;align-items:center!important;justify-content:center!important;border:none!important;border-radius:10px!important;background:#cf8f97!important;color:#fff!important;font-family:inherit!important;font-size:12px!important;padding:10px 16px!important;cursor:pointer!important}
+.oh-btn.primary.big{width:100%!important;padding:13px 16px!important;font-size:13px!important;font-weight:600!important}
+.oh-settings-layer{position:absolute!important;inset:0!important;z-index:120!important;display:flex!important;flex-direction:column!important;background:var(--bg)!important}
+.oh-settings-body{flex:1!important;min-height:0!important;overflow-y:auto!important}
+.settings-panel{display:flex!important;flex-direction:column!important;gap:12px!important;padding:16px!important}
 `;
 
 onMounted(() => {
