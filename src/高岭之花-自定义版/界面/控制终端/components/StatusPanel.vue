@@ -62,6 +62,16 @@
     <div class="env-row">
       <span class="env-item"><span class="env-ico">◷</span>{{ store.data.世界.当前时间 }}</span>
       <span class="env-item"><span class="env-ico">⌖</span>{{ store.data.世界.当前地点 }}</span>
+      <button class="env-edit" type="button" @click="openScene">改</button>
+    </div>
+    <div v-if="sceneEditing" class="scene-edit">
+      <label><span>时间</span><input v-model="sceneDraft.time" type="text" /></label>
+      <label><span>地点</span><input v-model="sceneDraft.place" type="text" /></label>
+      <label><span>处境</span><input v-model="sceneDraft.situation" type="text" /></label>
+      <div class="scene-actions">
+        <button class="btn primary sm" type="button" @click="saveScene">保存</button>
+        <button class="btn ghost sm" type="button" @click="sceneEditing = false">取消</button>
+      </div>
     </div>
 
     <!-- 认知摘要 -->
@@ -187,12 +197,31 @@
 
 <script setup lang="ts">
 import BodyDiagram from './BodyDiagram.vue';
+import { ref, reactive } from 'vue';
 import { POWER_STATES, useDataStore, applyPower, powerStateIndex, pushSystemLog, startReboot } from '../store';
 import type { PowerState } from '../store';
 import { uiState } from '../ui-state';
 import { hbBattery, hbCpu, hbRam } from '../heartbeat';
 
 const store = useDataStore();
+
+const sceneEditing = ref(false);
+const sceneDraft = reactive({ time: '', place: '', situation: '' });
+
+function openScene() {
+  sceneDraft.time = store.data.世界.当前时间;
+  sceneDraft.place = store.data.世界.当前地点;
+  sceneDraft.situation = store.data.千鹤.处境认知;
+  sceneEditing.value = true;
+}
+
+function saveScene() {
+  store.data.世界.当前时间 = sceneDraft.time.trim();
+  store.data.世界.当前地点 = sceneDraft.place.trim();
+  store.data.千鹤.处境认知 = sceneDraft.situation.trim();
+  sceneEditing.value = false;
+  toastr.success('场景已更新');
+}
 
 function clsOf(s: string): string {
   const map: Record<string, string> = {
@@ -488,6 +517,64 @@ function reboot() {
   color: var(--accent);
   font-size: 12px;
   line-height: 1;
+}
+
+.env-edit {
+  margin-left: auto;
+  padding: 5px 11px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 10.5px;
+  cursor: pointer;
+}
+
+.env-edit:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.scene-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.scene-edit label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.scene-edit input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 11.5px;
+  color: var(--text);
+  outline: none;
+}
+
+.scene-edit input:focus {
+  border-color: var(--accent);
+}
+
+.scene-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 /* ===== 认知摘要 ===== */
