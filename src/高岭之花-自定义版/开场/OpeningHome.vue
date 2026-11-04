@@ -769,6 +769,16 @@ const pages = computed(() => [
 const desktopPage = ref<'custom' | 'official' | 'manage'>('custom');
 const desktopSelected = computed(() => pages.value.find(page => page.key === desktopPage.value) ?? pages.value[0]);
 
+watch(isDesktop, desktop => {
+  if (desktop) return;
+  nextTick(() => {
+    const index = Math.max(0, pages.value.findIndex(page => page.key === desktopPage.value));
+    pageIndex.value = index;
+    const element = pager.value;
+    if (element) element.scrollTo({ left: index * element.clientWidth });
+  });
+});
+
 function onPagerScroll() {
   const element = pager.value;
   if (!element) return;
@@ -2325,31 +2335,4 @@ function scrollToPage(index: number) {
   }
 }
 
-@media (min-width: 900px) {
-  .oh-pager {
-    overflow: hidden;
-  }
-
-  .oh-page {
-    flex: 1 1 0;
-    min-width: 0;
-    border-left: 1px solid var(--line);
-
-    &:first-child {
-      border-left: 0;
-    }
-  }
-
-  .oh-nav {
-    display: none;
-  }
-
-  .oh-page-caption {
-    padding: 18px;
-  }
-
-  .oh-page-caption h2 {
-    font-size: 22px;
-  }
-}
 </style>
