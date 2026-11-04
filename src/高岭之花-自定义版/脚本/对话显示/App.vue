@@ -132,7 +132,7 @@
 
       <!-- ========== 设置视图 ========== -->
       <div v-else class="view settings-view">
-        <SettingsPanel :show-layout="true" title="外观设置" sub="为你的屏幕挑选一套风格" @open-library="libraryOpen = true" />
+        <SettingsPanel :show-layout="true" title="外观设置" sub="为你的屏幕挑选一套风格" @open-library="libraryOpen = true" @open-gallery="galleryOpen = true" />
       </div>
     </main>
 
@@ -187,7 +187,7 @@
         <!-- PC 设置面板 -->
         <template v-if="view === 'settings'">
           <div class="pc-settings">
-            <SettingsPanel :show-layout="true" title="外观与显示" sub="为你的屏幕挑选一套风格与形态" @open-library="libraryOpen = true" />
+            <SettingsPanel :show-layout="true" title="外观与显示" sub="为你的屏幕挑选一套风格与形态" @open-library="libraryOpen = true" @open-gallery="galleryOpen = true" />
           </div>
         </template>
 
@@ -319,6 +319,7 @@
       mode="library"
       @close="libraryOpen = false"
     />
+    <GalleryPanel v-if="galleryOpen" @close="galleryOpen = false" />
     <RoleDrawer
       v-if="roleDrawerOpen"
       @close="roleDrawerOpen = false"
@@ -346,6 +347,7 @@ import SettingsPanel from './SettingsPanel.vue';
 import RoleManager from '../../界面/控制终端/components/RoleManager.vue';
 import RoleDrawer from '../../界面/控制终端/components/RoleDrawer.vue';
 import OpeningHome from '../../开场/OpeningHome.vue';
+import GalleryPanel from '../../画廊/GalleryPanel.vue';
 import { isOpeningPending } from '../../开场/apply';
 import { getRoleArt } from '../../界面/控制终端/role-art';
 import { ensurePresetArt, getCardImage } from '../../界面/控制终端/role-art';
@@ -394,6 +396,7 @@ const roleManagerOpen = ref(false);
 const roleManagerCreate = ref(false);
 const roleDrawerOpen = ref(false);
 const libraryOpen = ref(false);
+const galleryOpen = ref(false);
 const openingPending = ref(false);
 const showSwitchHint = ref(false);
 let switchHintTimer: number | undefined;

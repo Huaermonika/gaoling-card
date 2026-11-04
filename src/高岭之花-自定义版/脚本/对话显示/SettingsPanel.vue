@@ -231,6 +231,12 @@
       <button class="mode-btn" type="button" @click="emit('open-library')">打开角色库</button>
     </div>
 
+    <div class="setting-group">
+      <div class="setting-title">画廊</div>
+      <div class="setting-hint">官方图与本地图片。可以设为当前角色头像。</div>
+      <button class="mode-btn" type="button" @click="emit('open-gallery')">打开画廊</button>
+    </div>
+
     <div class="settings-sec"><span class="settings-sec-bar"></span>额外提示词</div>
     <ExtraPromptSettings />
 
@@ -297,7 +303,7 @@ withDefaults(
   },
 );
 
-const emit = defineEmits<{ 'open-library': [] }>();
+const emit = defineEmits<{ 'open-library': []; 'open-gallery': [] }>();
 
 function toggleHeartbeat(): void {
   saveHeartbeatSettings({ 启用: !heartbeatSettings.启用 });
