@@ -397,7 +397,7 @@ const roleManagerCreate = ref(false);
 const roleDrawerOpen = ref(false);
 const libraryOpen = ref(false);
 const galleryOpen = ref(false);
-const openingPending = ref(false);
+const openingPending = ref(isOpeningPending(0));
 const showSwitchHint = ref(false);
 let switchHintTimer: number | undefined;
 
@@ -416,7 +416,16 @@ function dismissSwitchHint() {
 
 onMounted(() => {
   // 首楼且仍是占位消息：接管首楼，显示开场设置
-  if (Number(getCurrentMessageId()) === 0 && isOpeningPending(0)) openingPending.value = true;
+  const opening = isOpeningPending(0);
+  if (opening) openingPending.value = true;
+
+  // 排查开场页不出现时，把这一行发给作者
+  console.info('[开场检测]', {
+    current: getCurrentMessageId(),
+    last: getLastMessageId(),
+    first: String(getChatMessages(0)?.[0]?.message ?? '').slice(0, 80),
+    opening,
+  });
 
   // 千鹤的预设头像 = 当前角色卡卡图，只播种一次；玩家删掉后不再补
   if (store.data.角色['千鹤']) ensurePresetArt('千鹤', getCardImage());

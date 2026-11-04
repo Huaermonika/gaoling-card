@@ -17,13 +17,18 @@ export function isOpeningDone(): boolean {
 export function isOpeningPending(messageId = 0): boolean {
   if (isOpeningDone()) return false;
   try {
+    // 新聊天通常只有首楼；即使占位被酒馆完全吃掉，也应当接管
+    if (Number(getLastMessageId()) <= 0) return true;
+
     const messages = getChatMessages(messageId) as any;
     const first = Array.isArray(messages) ? messages[0] : messages;
     const text = String(first?.message ?? '');
     const visible = text.replace(/[\s\u200b]/g, '');
     // 酒馆可能把首楼的 HTML 注释剥掉，零宽字符也不可见
     if (visible.includes('ch-opening-pending')) return true;
-    if (!visible && getLastMessageId() === 0) return true;
+    if (!visible) {
+      return Number(getLastMessageId()) <= 0 || Number(getCurrentMessageId()) === 0;
+    }
     return false;
   } catch {
     return false;

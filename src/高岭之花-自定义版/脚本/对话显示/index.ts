@@ -52,36 +52,4 @@ $(async () => {
   initGallery();
 });
 
-// 隐藏滚动条：注入 CSS 让主页面与 iframe 内的滚动条都不可见
-(function hideScrollbars() {
-  const css = `
-    html, body, * {
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-
-    html::-webkit-scrollbar,
-    body::-webkit-scrollbar,
-    *::-webkit-scrollbar {
-      display: none;
-    }
-  `;
-
-  function inject(doc: Document, id: string) {
-    if (!doc || !doc.head || doc.getElementById(id)) return;
-    const style = doc.createElement('style');
-    style.id = id;
-    style.textContent = css;
-    doc.head.appendChild(style);
-  }
-
-  inject(document, 'ch-hide-scrollbars');
-
-  try {
-    if (window.parent !== window) {
-      inject(window.parent.document, 'ch-hide-scrollbars-parent');
-    }
-  } catch (_) {
-    // 跨域父文档忽略
-  }
-})();
+// 滚动条交给 App.vue 的主题细条样式处理，不再全局强制隐藏。
