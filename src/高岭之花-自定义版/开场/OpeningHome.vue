@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootEl" class="oh-overlay">
+  <div ref="rootEl" class="oh-overlay" :style="overlayStyle">
     <button v-if="view === 'home' && !settingsOpen" class="oh-gear" type="button" @click="settingsOpen = true">设置</button>
 
     <div v-if="settingsOpen" class="oh-settings-layer">
@@ -77,19 +77,19 @@
       </div>
 
       <template v-else>
-        <div class="oh-pager-wrap">
+        <div class="oh-pager-wrap" :style="pagerWrapStyle">
           <button class="oh-nav prev" type="button" :disabled="pageIndex === 0" @click="scrollToPage(pageIndex - 1)">‹</button>
 
-          <div ref="pager" class="oh-pager" @scroll="onPagerScroll">
+          <div ref="pager" class="oh-pager" :style="pagerStyle" @scroll="onPagerScroll">
             <article
               v-for="page in pages"
               :key="page.key"
               class="oh-page"
               :class="page.key"
-              :style="page.key === 'notice' && page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}"
+              :style="[pageStyle, page.key === 'notice' && page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}]"
               @click="page.key === 'notice' && nextPage()"
             >
-              <div v-if="page.key === 'notice'" class="oh-notice">
+              <div v-if="page.key === 'notice'" class="oh-notice" :style="{ flex: '1', minHeight: '0' }">
                 <span class="oh-kicker">高岭之花 · AN-0170A</span>
                 <h2>发布信息</h2>
                 <div class="oh-notice-rows">
@@ -109,7 +109,7 @@
               </div>
 
               <template v-else>
-                <div class="oh-cover" :style="page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}">
+                <div class="oh-cover" :style="[coverStyle, page.cover ? { backgroundImage: `url(&quot;${page.cover}&quot;)` } : {}]">
                   <div v-if="!page.cover" class="oh-placeholder" :class="page.key">
                     <span class="oh-ph-label">{{ page.key === 'custom' ? 'PORTRAIT' : 'LIBRARY' }}</span>
                     <b>{{ page.key === 'custom' ? '你的角色' : '角色库' }}</b>
@@ -118,12 +118,12 @@
                   <span v-if="page.badge" class="oh-badge">{{ page.badge }}</span>
                 </div>
 
-                <div class="oh-page-caption">
+                <div class="oh-page-caption" :style="captionStyle">
                   <span class="oh-kicker">{{ page.kicker }}</span>
                   <h2>{{ page.title }}</h2>
                   <p>{{ page.line }}</p>
                   <span class="oh-page-meta">{{ page.meta }}</span>
-                  <button class="oh-btn primary big" type="button" @click="page.action">{{ page.button }}</button>
+                  <button class="oh-btn primary big" type="button" :style="primaryButtonStyle" @click="page.action">{{ page.button }}</button>
                 </div>
               </template>
             </article>
@@ -497,6 +497,69 @@ const CRITICAL_CSS = `
 .oh-settings-body{flex:1!important;min-height:0!important;overflow-y:auto!important}
 .settings-panel{display:flex!important;flex-direction:column!important;gap:12px!important;padding:16px!important}
 `;
+
+const overlayStyle: Record<string, string> = {
+  position: 'absolute',
+  inset: '0',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+  background: 'var(--bg)',
+};
+const pagerWrapStyle: Record<string, string> = {
+  position: 'relative',
+  flex: '1',
+  minHeight: '0',
+  height: '100%',
+};
+const pagerStyle: Record<string, string> = {
+  height: '100%',
+  display: 'flex',
+  gap: '0',
+  overflowX: 'auto',
+  overflowY: 'hidden',
+  scrollSnapType: 'x mandatory',
+};
+const pageStyle: Record<string, string> = {
+  flex: '0 0 100%',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  backgroundColor: 'var(--bg)',
+  overflow: 'hidden',
+};
+const coverStyle: Record<string, string> = {
+  position: 'relative',
+  flex: '0 0 58%',
+  height: '58%',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center top',
+  backgroundRepeat: 'no-repeat',
+};
+const captionStyle: Record<string, string> = {
+  flex: '1',
+  minHeight: '0',
+  padding: '18px 22px 30px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'flex-start',
+  gap: '6px',
+  background: 'var(--bg)',
+  color: 'var(--text)',
+};
+const primaryButtonStyle: Record<string, string> = {
+  width: '100%',
+  border: '0',
+  borderRadius: '10px',
+  background: '#cf8f97',
+  color: '#fff',
+  padding: '13px 16px',
+  fontFamily: 'inherit',
+  fontSize: '13px',
+  fontWeight: '600',
+  cursor: 'pointer',
+};
 
 onMounted(() => {
   const id = 'ch-opening-critical';
