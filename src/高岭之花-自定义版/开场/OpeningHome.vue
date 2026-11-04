@@ -486,6 +486,27 @@ let suppressWatch = false;
 
 let resizeObserver: ResizeObserver | undefined;
 
+const CRITICAL_CSS = `
+.oh-overlay{position:absolute;inset:0;z-index:70;background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow:hidden}
+.oh-page{flex:0 0 calc(100% - 6px);scroll-snap-align:start;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden;min-height:0}
+.oh-cover{position:relative;flex:1;min-height:0;background-size:cover;background-position:center top;display:flex;align-items:center;justify-content:center}
+.oh-page-caption{display:flex;flex-direction:column;gap:8px;padding:16px 20px 20px}
+.oh-btn{display:flex;align-items:center;justify-content:center;border:none;border-radius:10px;background:#cf8f97;color:#fff;font-family:inherit;font-size:12px;padding:10px 16px;cursor:pointer}
+.oh-btn.primary.big{width:100%;padding:13px 16px;font-size:13px;font-weight:600}
+.oh-settings-layer{position:absolute;inset:0;z-index:120;display:flex;flex-direction:column;background:var(--bg)}
+.oh-settings-body{flex:1;min-height:0;overflow-y:auto}
+.settings-panel{display:flex;flex-direction:column;gap:12px;padding:16px}
+`;
+
+onMounted(() => {
+  const id = 'ch-opening-critical';
+  if (document.getElementById(id)) return;
+  const style = document.createElement('style');
+  style.id = id;
+  style.textContent = CRITICAL_CSS;
+  document.head.appendChild(style);
+});
+
 onMounted(async () => {
   const element = rootEl.value;
   if (element && typeof ResizeObserver !== 'undefined') {
