@@ -8,14 +8,24 @@
 
     <!-- ===== 列表 ===== -->
     <div v-if="mode === 'list'" class="rm-body">
+      <div class="rm-search">
+        <input v-model="search" type="search" placeholder="搜名字或型号" />
+        <span>{{ filteredControllable.length + filteredBackgrounds.length }}</span>
+      </div>
+
       <section class="rm-section">
         <div class="rm-section-head">
-          <span>受控角色</span>
+          <span>受控角色 <small>{{ controllable.length }}</small></span>
           <button class="rm-add" type="button" @click="startCreate('受控')">＋ 新建</button>
         </div>
-        <p class="rm-hint">能切换、能控制，有完整状态和记忆。</p>
+        <p class="rm-hint">能切换、能控制。优先级决定记忆和描写权重。</p>
 
-        <div v-for="[id, role] in controllable" :key="id" class="rm-row" :class="{ current: id === store.data.当前角色 }">
+        <div
+          v-for="[id, role] in filteredControllable"
+          :key="id"
+          class="rm-card"
+          :class="{ current: id === store.data.当前角色 }"
+        >
           <span class="rm-avatar" :style="artStyle(id)">
             <span v-if="!getRoleArt(id)">{{ initialOf(role.档案.姓名 || id) }}</span>
           </span>
@@ -24,26 +34,29 @@
               {{ role.档案.姓名 || '未命名' }}
               <span v-if="id === store.data.当前角色" class="rm-badge">当前</span>
             </div>
-            <div class="rm-sub">{{ role.档案.型号 || '没型号' }} · 优先级 {{ role.优先级 }}</div>
+            <div class="rm-sub">{{ role.档案.型号 || '没型号' }} · P{{ role.优先级 }}</div>
+            <div class="rm-stats">
+              <span>记忆 {{ memoryCount(role) }}</span>
+              <span>指令 {{ commandCount(role) }}</span>
+            </div>
           </div>
           <div class="rm-ops">
-            <button class="rm-btn" type="button" :disabled="id === store.data.当前角色" @click="switchTo(id)">切换</button>
-            <button class="rm-btn" type="button" @click="startEdit(id)">编辑</button>
-            <button class="rm-btn danger" type="button" @click="askDelete(id)">
-              {{ confirmId === id ? '确认删除' : '删除' }}
-            </button>
+            <button v-if="id !== store.data.当前角色" class="rm-switch" type="button" @click="switchTo(id)">切换</button>
+            <button class="rm-icon" type="button" title="编辑" @click="startEdit(id)">编</button>
+            <button class="rm-icon danger" type="button" title="删除" @click="askDelete(id)">删</button>
           </div>
         </div>
+        <p v-if="!filteredControllable.length" class="rm-empty">没找到。</p>
       </section>
 
       <section class="rm-section">
         <div class="rm-section-head">
-          <span>背景角色</span>
+          <span>背景角色 <small>{{ backgrounds.length }}</small></span>
           <button class="rm-add" type="button" @click="startCreate('背景')">＋ 新建</button>
         </div>
         <p class="rm-hint">只有基础资料。不能控制，也没有记忆。</p>
 
-        <div v-for="[id, role] in backgrounds" :key="id" class="rm-row">
+        <div v-for="[id, role] in filteredBackgrounds" :key="id" class="rm-card bg">
           <span class="rm-avatar bg" :style="artStyle(id)">
             <span v-if="!getRoleArt(id)">{{ initialOf(role.档案.姓名 || id) }}</span>
           </span>
@@ -52,13 +65,11 @@
             <div class="rm-sub">{{ role.档案.关系 || '没写关系' }}</div>
           </div>
           <div class="rm-ops">
-            <button class="rm-btn" type="button" @click="startEdit(id)">编辑</button>
-            <button class="rm-btn danger" type="button" @click="askDelete(id)">
-              {{ confirmId === id ? '确认删除' : '删除' }}
-            </button>
+            <button class="rm-icon" type="button" title="编辑" @click="startEdit(id)">编</button>
+            <button class="rm-icon danger" type="button" title="删除" @click="askDelete(id)">删</button>
           </div>
         </div>
-        <p v-if="!backgrounds.length" class="rm-empty">没有背景角色。</p>
+        <p v-if="!filteredBackgrounds.length" class="rm-empty">没找到。</p>
       </section>
     </div>
 
@@ -150,6 +161,17 @@
         <button class="rm-btn primary" type="button" @click="save">保存</button>
       </div>
     </div>
+
+    <div v-if="deleteTarget" class="rm-mask" @click.self="deleteTarget = null">
+      <div class="rm-confirm">
+        <b>删除「{{ deleteRole?.档案?.姓名 || '未命名' }}」？</b>
+        <p>状态、{{ deleteMemory }} 条记忆、{{ deleteCommands }} 条指令会一起删除，不能恢复。</p>
+        <div class="rm-confirm-actions">
+          <button class="rm-btn" type="button" @click="deleteTarget = null">取消</button>
+          <button class="rm-btn danger" type="button" @click="confirmDelete">删除</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -179,7 +201,8 @@ onMounted(() => {
 const mode = ref<'list' | 'edit'>('list');
 const editingKind = ref<'受控' | '背景'>('受控');
 const editingId = ref<string | null>(null);
-const confirmId = ref<string | null>(null);
+const deleteTarget = ref<string | null>(null);
+const search = ref('');
 const error = ref('');
 
 const form = reactive({
@@ -196,10 +219,44 @@ const form = reactive({
   头像: '',
 });
 
-const controllable = computed(() => 受控角色列表(store.data));
-const backgrounds = computed(() =>
-  Object.entries(store.data.角色).filter(([, role]) => role.类型 === '背景'),
+const controllable = computed(() =>
+  受控角色列表(store.data).sort((a, b) => {
+    const pa = Number(a[1].优先级 ?? 1);
+    const pb = Number(b[1].优先级 ?? 1);
+    if (pa !== pb) return pa - pb;
+    return String(a[1].档案.姓名 ?? '').localeCompare(String(b[1].档案.姓名 ?? ''), 'zh');
+  }),
 );
+const backgrounds = computed(() =>
+  Object.entries(store.data.角色)
+    .filter(([, role]) => role.类型 === '背景')
+    .sort((a, b) => String(a[1].档案.姓名 ?? '').localeCompare(String(b[1].档案.姓名 ?? ''), 'zh')),
+);
+
+function matches(role: any): boolean {
+  const query = search.value.trim().toLowerCase();
+  if (!query) return true;
+  const name = String(role?.档案?.姓名 ?? '').toLowerCase();
+  const model = String(role?.档案?.型号 ?? '').toLowerCase();
+  return name.includes(query) || model.includes(query);
+}
+
+const filteredControllable = computed(() => controllable.value.filter(([, role]) => matches(role)));
+const filteredBackgrounds = computed(() => backgrounds.value.filter(([, role]) => matches(role)));
+
+function memoryCount(role: any): number {
+  const log = role?.状态?.记忆日志;
+  return Array.isArray(log) ? log.length : 0;
+}
+
+function commandCount(role: any): number {
+  const commands = role?.状态?.指令覆盖;
+  return commands && typeof commands === 'object' ? Object.keys(commands).length : 0;
+}
+
+const deleteRole = computed(() => (deleteTarget.value ? store.data.角色[deleteTarget.value] : null));
+const deleteMemory = computed(() => (deleteRole.value ? memoryCount(deleteRole.value) : 0));
+const deleteCommands = computed(() => (deleteRole.value ? commandCount(deleteRole.value) : 0));
 
 function initialOf(name: string) {
   return Array.from(name.trim())[0] ?? '机';
@@ -298,6 +355,7 @@ function save() {
   }
 
   let savedId: string | null = editingId.value;
+  const created = !editingId.value;
 
   if (editingKind.value === '受控') {
     if (editingId.value) {
@@ -330,7 +388,6 @@ function save() {
         { 优先级: form.优先级 },
       );
       savedId = newId;
-      切换角色(store.data, newId);
     }
     规范化优先级(store.data);
   } else {
@@ -360,6 +417,7 @@ function save() {
 
   mode.value = 'list';
   editingId.value = null;
+  if (created) toastr.success('已创建，可在列表切换');
 }
 
 function switchTo(id: string) {
@@ -367,20 +425,26 @@ function switchTo(id: string) {
 }
 
 function askDelete(id: string) {
-  if (confirmId.value !== id) {
-    confirmId.value = id;
+  deleteTarget.value = id;
+}
+
+function confirmDelete() {
+  const id = deleteTarget.value;
+  if (!id) return;
+  const role = store.data.角色[id];
+  if (!role) {
+    deleteTarget.value = null;
     return;
   }
-  const role = store.data.角色[id];
-  if (!role) return;
   if (role.类型 === '受控' && 受控角色列表(store.data).length <= 1) {
-    error.value = '至少留一个能控制的。';
-    confirmId.value = null;
+    toastr.error('至少留一个能控制的。');
+    deleteTarget.value = null;
     return;
   }
   删除角色(store.data, id);
   removeRoleArt(id);
-  confirmId.value = null;
+  deleteTarget.value = null;
+  toastr.success('已删除');
 }
 </script>
 
@@ -692,5 +756,221 @@ function askDelete(id: string) {
   color: var(--muted);
   font-size: 12px;
   text-align: center;
+}
+.rm-body {
+  padding: 14px 14px 24px;
+  gap: 14px;
+}
+
+.rm-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.rm-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 11.5px;
+  outline: none;
+}
+
+.rm-search input:focus {
+  border-color: var(--accent);
+}
+
+.rm-search span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.rm-section {
+  padding: 13px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.rm-section-head span small {
+  margin-left: 4px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.rm-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin-top: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.rm-card.current {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel-2));
+}
+
+.rm-card.bg {
+  opacity: 0.9;
+}
+
+.rm-avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 10px;
+}
+
+.rm-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.rm-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rm-badge {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 8.5px;
+  font-weight: 500;
+}
+
+.rm-sub {
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rm-stats {
+  display: flex;
+  gap: 10px;
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.rm-ops {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.rm-switch {
+  padding: 5px 9px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.rm-switch:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.rm-icon {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.rm-icon:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.rm-icon.danger:hover {
+  color: #a34444;
+  border-color: #c85a5a;
+}
+
+.rm-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(30, 25, 20, 0.35);
+}
+
+.rm-confirm {
+  width: min(320px, 100%);
+  padding: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px -24px rgba(40, 30, 20, 0.5);
+}
+
+.rm-confirm b {
+  display: block;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.rm-confirm p {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.rm-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.rm-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+  margin-top: 4px;
+  background: var(--bg);
 }
 </style>
