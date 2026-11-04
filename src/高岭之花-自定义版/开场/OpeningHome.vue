@@ -83,7 +83,7 @@
       <div class="oh-official-hero" :style="cardImage ? { backgroundImage: `url(&quot;${cardImage}&quot;)` } : {}">
         <div class="oh-shade" />
         <button class="oh-back floating" type="button" @click="goHome('official')">← 返回</button>
-        <span class="oh-tag floating">官方</span>
+        <span class="oh-tag floating">官方预设</span>
       </div>
 
       <div class="oh-official-title">
@@ -126,7 +126,6 @@
       </div>
 
       <footer class="oh-foot">
-        <span class="oh-hint">开场只写一次。要换，只能开新聊天。</span>
         <button class="oh-btn primary big" type="button" :disabled="busy" @click="startOfficial">
           {{ busy ? '正在写入…' : '开始' }}
         </button>
@@ -291,7 +290,6 @@
       </div>
 
       <footer class="oh-foot">
-        <span class="oh-hint">库在本机。换设备就导出再导入。</span>
         <button class="oh-btn primary" type="button" @click="openCustom()">新建角色</button>
       </footer>
     </template>
@@ -727,8 +725,8 @@ const pages = computed(() => [
     key: 'custom',
     kicker: 'Custom',
     title: '自定义角色',
-    line: '写一个属于你的角色，开场与世界都由你定。',
-    meta: '本机保存 · 自动暂存',
+    line: '创建你的角色，书写你的故事。',
+    meta: '挥毫开万象，落笔定山河。',
     button: '创建角色',
     cover: '',
     badge: '',
@@ -738,11 +736,11 @@ const pages = computed(() => [
     key: 'official',
     kicker: 'Official',
     title: '白峰千鹤',
-    line: 'AN-0170A · 三条官方故事，档案只读。',
-    meta: '档案只读 · 三条开场',
+    line: 'AN-0170A · 高岭之花 · 开启你与她的故事。',
+    meta: '曲终待入，篇已先成。',
     button: '进入',
     cover: cardImage.value,
-    badge: '官方',
+    badge: '官方预设',
     action: () => {
       returnPage.value = 'official';
       view.value = 'official';
@@ -753,8 +751,8 @@ const pages = computed(() => [
     key: 'manage',
     kicker: 'Library',
     title: '管理',
-    line: '角色库、草稿、导入导出。',
-    meta: '自定义角色 · 导入导出',
+    line: '角色/草稿/导入/导出/创意工坊',
+    meta: '昨日遣画笥，今日发书簏',
     button: '打开',
     cover: '',
     badge: '',
@@ -932,11 +930,12 @@ function scrollToPage(index: number) {
   position: absolute;
   top: 10px;
   right: 10px;
-  padding: 2px 8px;
+  padding: 5px 12px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--accent) 85%, transparent);
   color: #fff;
-  font-size: 9px;
+  font-size: 11px;
+  letter-spacing: 1px;
 }
 
 .oh-page-body {
@@ -1062,11 +1061,12 @@ function scrollToPage(index: number) {
 
 .oh-tag {
   margin-left: auto;
-  padding: 2px 8px;
+  padding: 4px 11px;
   border: 1px solid var(--accent);
   border-radius: 999px;
   color: var(--accent);
-  font-size: 9px;
+  font-size: 10.5px;
+  letter-spacing: 1px;
 }
 
 .oh-save {
@@ -2089,6 +2089,7 @@ function scrollToPage(index: number) {
 .oh-foot .oh-btn {
   padding: 10px 22px;
   font-size: 13px;
+  margin-left: auto;
 }
 
 /* 自定义编辑器 */
