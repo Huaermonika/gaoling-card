@@ -311,7 +311,7 @@
       </main>
     </template>
 
-    <OpeningHome v-if="openingPending" :message-id="0" @done="openingPending = false" />
+    <OpeningHome v-if="openingPending" :message-id="0" :desktop="!isMobile" @done="openingPending = false" />
     <RoleDrawer
       v-if="roleDrawerOpen"
       @close="roleDrawerOpen = false"

@@ -82,7 +82,7 @@
     <template v-else-if="view === 'official'">
       <div class="oh-official-hero" :style="cardImage ? { backgroundImage: `url(&quot;${cardImage}&quot;)` } : {}">
         <div class="oh-shade" />
-        <button class="oh-back floating" type="button" @click="goHome()">← 返回</button>
+        <button class="oh-back floating" type="button" @click="goHome('official')">← 返回</button>
         <span class="oh-tag floating">官方</span>
       </div>
 
@@ -231,7 +231,7 @@
     <!-- 管理 -->
     <template v-else>
       <header class="oh-sub-head">
-        <button class="oh-back" type="button" @click="goHome()">← 返回</button>
+        <button class="oh-back" type="button" @click="goHome('manage')">← 返回</button>
         <b>管理</b>
         <div class="oh-manage-actions">
           <button class="oh-mini" type="button" @click="importInput?.click()">导入</button>
@@ -315,13 +315,15 @@ import {
   type CharacterPreset,
 } from '../角色库/db';
 
-const props = defineProps<{ messageId: number }>();
+const props = defineProps<{ messageId: number; desktop?: boolean }>();
 const emit = defineEmits<{ done: [] }>();
 
 const view = ref<'home' | 'official' | 'custom' | 'manage'>('home');
 const pager = ref<HTMLElement | null>(null);
 const pageIndex = ref(0);
-const isDesktop = ref(false);
+const isDesktop = ref(props.desktop ?? false);
+const returnPage = ref<'custom' | 'official' | 'manage'>('custom');
+const customReturn = ref<'home' | 'manage'>('home');
 const busy = ref(false);
 const error = ref('');
 
@@ -390,13 +392,22 @@ let saveTimer: number | undefined;
 let suppressWatch = false;
 
 onMounted(async () => {
-  const media = window.matchMedia('(min-width: 900px)');
-  isDesktop.value = media.matches;
-  media.addEventListener('change', event => {
-    isDesktop.value = event.matches;
-  });
+  if (props.desktop === undefined) {
+    const media = window.matchMedia('(min-width: 900px)');
+    isDesktop.value = media.matches;
+    media.addEventListener('change', event => {
+      isDesktop.value = event.matches;
+    });
+  }
   await refreshLibrary();
 });
+
+watch(
+  () => props.desktop,
+  value => {
+    if (value !== undefined) isDesktop.value = value;
+  },
+);
 
 watch(
   form,
@@ -494,6 +505,8 @@ async function persist(status: 'draft' | 'ready') {
 }
 
 function openCustom(record?: CharacterPreset) {
+  customReturn.value = view.value === 'manage' ? 'manage' : 'home';
+  returnPage.value = 'custom';
   suppressWatch = true;
   if (record) {
     form.姓名 = record.profile.姓名;
@@ -544,18 +557,25 @@ function openCustom(record?: CharacterPreset) {
   }, 0);
 }
 
-function goHome() {
+function goHome(page: 'custom' | 'official' | 'manage' = returnPage.value) {
   view.value = 'home';
-  pageIndex.value = 0;
+  desktopPage.value = page;
+  const index = Math.max(0, pages.value.findIndex(item => item.key === page));
+  pageIndex.value = index;
   nextTick(() => {
-    pager.value?.scrollTo({ left: 0 });
+    const element = pager.value;
+    if (element) element.scrollTo({ left: index * element.clientWidth });
   });
 }
 
 function backFromCustom() {
   if (saveTimer) window.clearTimeout(saveTimer);
   if (hasContent()) void persist('draft');
-  goHome();
+  if (customReturn.value === 'manage') {
+    view.value = 'manage';
+    return;
+  }
+  goHome('custom');
 }
 
 function editCharacter(record: CharacterPreset) {
@@ -724,6 +744,7 @@ const pages = computed(() => [
     cover: cardImage.value,
     badge: '官方',
     action: () => {
+      returnPage.value = 'official';
       view.value = 'official';
       error.value = '';
     },
@@ -738,6 +759,7 @@ const pages = computed(() => [
     cover: '',
     badge: '',
     action: () => {
+      returnPage.value = 'manage';
       view.value = 'manage';
       error.value = '';
     },
