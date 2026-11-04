@@ -311,7 +311,9 @@
       </main>
     </template>
 
-    <OpeningHome v-if="openingPending" :message-id="0" :desktop="!isMobile" @done="openingPending = false" />
+    <div v-if="openingPending" class="opening-layer">
+      <OpeningHome :message-id="0" :desktop="!isMobile" @done="openingPending = false" />
+    </div>
     <OpeningHome
       v-if="libraryOpen"
       :message-id="0"
@@ -590,8 +592,7 @@ const dialogHtml = computed(() => context.message || '');
 
 <style scoped lang="scss">
 .phone {
-  /* 主题变量由 inline style 注入（见 phoneVars）；此处只声明基础字体 */
-  --font-ui: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  /* 主题变量由 inline style 注入（见 phoneVars）；此处只声明基础字体 */  --font-ui: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace;
 
   position: relative;
@@ -667,6 +668,14 @@ const dialogHtml = computed(() => context.message || '');
 }
 
 /* ===== 屏幕主体 ===== */
+.opening-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  background: var(--bg);
+}
+
 .phone-screen {
   position: relative;
   z-index: 1;

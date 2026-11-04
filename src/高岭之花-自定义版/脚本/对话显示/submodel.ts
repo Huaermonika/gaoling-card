@@ -399,6 +399,8 @@ function variableSnapshot(stat: Record<string, any>): Record<string, any> {
 
 async function runVariableUpdate(): Promise<void> {
   if (!submodelConfig.enabled || !submodelConfig.varUpdate) return;
+  // 首楼还没进入剧情（开场写入阶段），不跑变量更新
+  if (Number(getLastMessageId()) <= 0) return;
 
   const stat = readStat();
   const snapshot = variableSnapshot(stat);
