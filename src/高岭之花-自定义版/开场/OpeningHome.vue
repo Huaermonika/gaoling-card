@@ -13,7 +13,7 @@
             <div class="oh-notice-rows">
               <div><span>作者</span><b>Urumir乌璐米尔</b></div>
               <div><span>发布</span><b>类脑</b></div>
-              <div><span>版本</span><b>V1.6.3 · 自定义版</b></div>
+              <div><span>版本</span><b>V1.6.4 · 自定义版</b></div>
             </div>
             <div class="oh-notice-block">
               <h3>内容提醒</h3>
@@ -84,7 +84,7 @@
                 <div class="oh-notice-rows">
                   <div><span>作者</span><b>Urumir乌璐米尔</b></div>
                   <div><span>发布</span><b>类脑</b></div>
-                  <div><span>版本</span><b>V1.6.3 · 自定义版</b></div>
+                  <div><span>版本</span><b>V1.6.4 · 自定义版</b></div>
                 </div>
                 <div class="oh-notice-block">
                   <h3>内容提醒</h3>
