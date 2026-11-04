@@ -28,13 +28,20 @@ export const 千鹤开场: OpeningPreset[] = [
   parsePreset('qianhe-home', '周末 · 家中', '她已经把你当作恋人', raw2),
 ];
 
-/** 从开场文本里去掉 initvar，供预览与摘要 */
-export function previewText(text: string, limit = 180): string {
+/** 去掉开场里给 AI 看的隐藏块，只留下玩家该看到的正文 */
+export function stripOpeningHidden(text: string): string {
   return text
     .replace(/<initvar>[\s\S]*?<\/initvar>/g, '')
+    .replace(/<UpdateVariable>[\s\S]*$/i, '')
+    .replace(/<StatusPlaceHolderImpl\s*\/>/gi, '')
+    .replace(/<ch_writing>[\s\S]*?<\/ch_writing>/gi, '')
     .replace(/<!--[\s\S]*?-->/g, '')
-    .trim()
-    .slice(0, limit);
+    .trim();
+}
+
+/** 从开场文本里去掉 initvar 与隐藏块，供预览与摘要 */
+export function previewText(text: string, limit = 180): string {
+  return stripOpeningHidden(text).slice(0, limit);
 }
 
 export interface CustomOpeningInput {

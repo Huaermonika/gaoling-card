@@ -2667,7 +2667,10 @@ function nextPage() {
 }
 
 .oh-desk.notice .oh-desk-stage {
-  background: var(--bg);
+  background-color: var(--bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   justify-content: center;
 }
 

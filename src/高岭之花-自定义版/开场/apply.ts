@@ -1,7 +1,7 @@
 /** 开场落盘：把开场文本写进首楼，同时写入 stat_data 与开场完成标记。 */
 
 import { klona } from 'klona';
-import type { OpeningPreset } from './presets';
+import { stripOpeningHidden, type OpeningPreset } from './presets';
 
 const CHAT_KEY = 'ch_opening_done';
 
@@ -34,11 +34,8 @@ export async function applyOpening(preset: OpeningPreset, messageId: number): Pr
   const data = klona(preset.data);
   await updateVariablesWith(vars => _.set(vars, 'stat_data', data), { type: 'message', message_id: messageId });
 
-  // 首楼只写正文；initvar 已经单独写进 stat_data，不再留在聊天记录里
-  const text = preset.text
-    .replace(/<initvar>[\s\S]*?<\/initvar>/g, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .trim();
+  // 首楼只写正文；initvar 和提示词块都不留在聊天记录里
+  const text = stripOpeningHidden(preset.text);
 
   await setChatMessages([{ message_id: messageId, message: text }], { refresh: 'affected' });
 
