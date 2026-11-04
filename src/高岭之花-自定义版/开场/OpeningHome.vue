@@ -1,5 +1,16 @@
 <template>
   <div class="oh-overlay">
+    <button v-if="view === 'home' && !settingsOpen" class="oh-gear" type="button" @click="settingsOpen = true">设置</button>
+
+    <div v-if="settingsOpen" class="oh-settings-layer">
+      <header class="oh-settings-head">
+        <button class="oh-back" type="button" @click="settingsOpen = false">← 返回</button>
+        <b>设置</b>
+      </header>
+      <div class="oh-settings-body">
+        <SettingsPanel :show-layout="true" title="显示设置" sub="开局页也能调" />
+      </div>
+    </div>
     <!-- 首页：整页翻页 -->
     <template v-if="view === 'home'">
       <!-- 桌面：整幅主画面 + 底部选择条 -->
@@ -378,6 +389,7 @@ import customCover from '../页面图/自定义角色.jpg';
 import manageCover from '../页面图/管理.jpg';
 import { 千鹤开场, buildCustomOpening, defaultCustomText, previewText } from './presets';
 import { applyOpening } from './apply';
+import SettingsPanel from '../脚本/对话显示/SettingsPanel.vue';
 import { fileToAvatar, getCardImage } from '../界面/控制终端/role-art';
 import {
   deleteCharacter,
@@ -395,6 +407,7 @@ const props = defineProps<{ messageId: number; desktop?: boolean; mode?: 'openin
 const emit = defineEmits<{ done: []; close: [] }>();
 
 const view = ref<'home' | 'official' | 'custom' | 'manage'>('home');
+const settingsOpen = ref(false);
 const libraryMode = computed(() => props.mode === 'library');
 const pager = ref<HTMLElement | null>(null);
 const pageIndex = ref(0);
@@ -1007,6 +1020,56 @@ function nextPage() {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.oh-gear {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 95;
+  padding: 6px 11px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel) 86%, transparent);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 10.5px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.oh-gear:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.oh-settings-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.oh-settings-head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.oh-settings-head b {
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.oh-settings-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .oh-top {

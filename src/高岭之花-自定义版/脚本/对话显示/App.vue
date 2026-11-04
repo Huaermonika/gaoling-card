@@ -1,6 +1,14 @@
 <template>
   <!-- 关闭美化时只挂操作台，正文由酒馆原生楼层显示 -->
-  <FlatConsole v-if="prettyOff" />
+  <FlatConsole v-if="prettyOff && !openingPending" />
+  <div
+    v-else-if="openingPending"
+    class="phone opening-mode"
+    :class="{ mobile: isMobile, desktop: !isMobile, elder: elderMode }"
+    :style="phoneVars"
+  >
+    <OpeningHome :message-id="0" :desktop="!isMobile" @done="openingPending = false" />
+  </div>
   <div v-else class="phone" :class="{ mobile: isMobile, desktop: !isMobile, elder: elderMode }" :style="phoneVars">
     <!-- 环境氛围光斑（降低空荡感） -->
     <div class="phone-deco" aria-hidden="true">
@@ -311,9 +319,6 @@
       </main>
     </template>
 
-    <div v-if="openingPending" class="opening-layer">
-      <OpeningHome :message-id="0" :desktop="!isMobile" @done="openingPending = false" />
-    </div>
     <OpeningHome
       v-if="libraryOpen"
       :message-id="0"
@@ -668,12 +673,16 @@ const dialogHtml = computed(() => context.message || '');
 }
 
 /* ===== 屏幕主体 ===== */
-.opening-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 200;
+.opening-mode {
   display: flex;
-  background: var(--bg);
+  flex-direction: column;
+}
+
+.opening-mode :deep(.oh-overlay) {
+  position: relative;
+  inset: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .phone-screen {

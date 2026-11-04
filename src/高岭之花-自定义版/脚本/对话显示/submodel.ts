@@ -401,6 +401,12 @@ async function runVariableUpdate(): Promise<void> {
   if (!submodelConfig.enabled || !submodelConfig.varUpdate) return;
   // 首楼还没进入剧情（开场写入阶段），不跑变量更新
   if (Number(getLastMessageId()) <= 0) return;
+  try {
+    const chat = getVariables({ type: 'chat' }) as Record<string, any> | null;
+    if (!chat?.ch_opening_done) return;
+  } catch {
+    /* 读不到聊天变量时按旧逻辑继续 */
+  }
 
   const stat = readStat();
   const snapshot = variableSnapshot(stat);
