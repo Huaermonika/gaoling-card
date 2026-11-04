@@ -405,7 +405,7 @@ function dismissSwitchHint() {
 
 onMounted(() => {
   // 首楼且仍是占位消息：接管首楼，显示开场设置
-  if (getCurrentMessageId() === 0 && isOpeningPending(0)) openingPending.value = true;
+  if (Number(getCurrentMessageId()) === 0 && isOpeningPending(0)) openingPending.value = true;
 
   // 千鹤的预设头像 = 当前角色卡卡图，只播种一次；玩家删掉后不再补
   if (store.data.角色['千鹤']) ensurePresetArt('千鹤', getCardImage());
