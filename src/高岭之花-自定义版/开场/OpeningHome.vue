@@ -22,7 +22,7 @@
             </div>
             <div class="oh-notice-block">
               <h3>内容提醒</h3>
-              <p>18+。含成人向、性描写、机械改造与支配描写。虚构作品，请勿模仿。</p>
+              <p>18+。含成人向、性描写、露出机损与支配描写。虚构作品，请勿模仿。</p>
             </div>
             <div class="oh-notice-block">
               <h3>免责声明</h3>
@@ -93,7 +93,7 @@
                 </div>
                 <div class="oh-notice-block">
                   <h3>内容提醒</h3>
-                  <p>18+。含成人向、性描写、机械改造与支配描写。虚构作品，请勿模仿。</p>
+                  <p>18+。含成人向、性描写、露出机损与支配描写。虚构作品，请勿模仿。</p>
                 </div>
                 <div class="oh-notice-block">
                   <h3>免责声明</h3>
@@ -210,14 +210,18 @@
       <div class="oh-editor">
         <div class="oh-form">
           <template v-if="currentSection === 'role'">
-            <div class="oh-avatar-row">
-              <div class="oh-avatar" :style="form.avatar ? { backgroundImage: `url(&quot;${form.avatar}&quot;)` } : {}">
-                {{ form.avatar ? '' : firstChar(form.姓名 || '机') }}
+            <div class="oh-portrait">
+              <div class="oh-portrait-frame" :style="form.avatar ? { backgroundImage: `url(&quot;${form.avatar}&quot;)` } : {}">
+                <span v-if="!form.avatar" class="oh-portrait-initial">{{ firstChar(form.姓名 || '机') }}</span>
+                <span class="oh-portrait-tag">PORTRAIT</span>
               </div>
-              <div class="oh-avatar-ops">
-                <button class="oh-mini" type="button" @click="avatarInput?.click()">上传立绘</button>
-                <button v-if="form.avatar" class="oh-mini" type="button" @click="form.avatar = ''">移除</button>
-                <small>方图。空着也行，之后补。</small>
+              <div class="oh-portrait-info">
+                <b>人物立绘</b>
+                <small>此处上传人物立绘或头像</small>
+                <div class="oh-portrait-actions">
+                  <button class="oh-btn primary sm" type="button" @click="avatarInput?.click()">上传图片</button>
+                  <button v-if="form.avatar" class="oh-mini" type="button" @click="form.avatar = ''">移除</button>
+                </div>
               </div>
               <input ref="avatarInput" type="file" accept="image/*" style="display: none" @change="onAvatar" />
             </div>
@@ -274,8 +278,8 @@
       </div>
 
       <footer class="oh-foot">
-        <button class="oh-mini" type="button" @click="persist('draft')">先存着</button>
-        <span class="oh-hint">{{ form.姓名 ? '自动存。' : libraryMode ? '名字填了才能保存。' : '名字填了才能开始。' }}</span>
+        <button class="oh-mini" type="button" @click="persist('draft')">暂存草稿</button>
+        <span class="oh-hint">{{ form.姓名 ? '自动存。' : '填写基本信息以保存草稿' }}</span>
         <button v-if="libraryMode" class="oh-btn primary" type="button" :disabled="busy || !form.姓名.trim()" @click="saveLibrary">保存</button>
         <button v-else class="oh-btn primary" type="button" :disabled="busy || !form.姓名.trim()" @click="startCustom">
           {{ busy ? '正在写入…' : '开始' }}
@@ -1734,6 +1738,83 @@ function nextPage() {
     color: var(--muted);
     line-height: 1.4;
   }
+}
+
+.oh-portrait {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-2);
+}
+
+.oh-portrait-frame {
+  position: relative;
+  width: 92px;
+  height: 118px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--avatar-a), var(--avatar-b));
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.oh-portrait-tag {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.24);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+
+.oh-portrait-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.oh-portrait-info b {
+  font-family: Georgia, 'Songti SC', 'SimSun', serif;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 2px;
+}
+
+.oh-portrait-info small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.oh-portrait-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.oh-portrait-actions .oh-btn.sm {
+  width: auto;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 10.5px;
 }
 
 .oh-mini {
